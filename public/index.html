@@ -1,114 +1,124 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>今日の推しジョッキー</title>
-    <style>
-      body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; margin: 0; background: #f6f7fb; }
-      .wrap { max-width: 520px; margin: 0 auto; padding: 24px 16px; }
-      h1 { font-size: 24px; margin: 10px 0 6px; }
-      p { margin: 0 0 18px; color: #555; }
-      button {
-        width: 100%;
-        font-size: 18px;
-        padding: 14px 12px;
-        border: 0;
-        border-radius: 14px;
-        background: #111;
-        color: #fff;
-        cursor: pointer;
-      }
-      button:disabled { opacity: 0.6; cursor: not-allowed; }
-      .card {
-        margin-top: 18px;
-        background: #fff;
-        border-radius: 18px;
-        padding: 18px;
-        box-shadow: 0 6px 18px rgba(0,0,0,.08);
-      }
-      .name { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-      .meta { font-size: 12px; color: #777; }
-      a { color: #0b57d0; text-decoration: none; }
-      a:hover { text-decoration: underline; }
-      .status { margin-top: 12px; color: #333; }
-      .small { font-size: 12px; color: #666; margin-top: 8px; }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <h1>今日の推しジョッキー</h1>
-      <p>ボタンを押すだけ。今日の推しを1人引き当てよう。</p>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>今日の推しジョッキー</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; margin: 0; padding: 24px; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 24px; margin: 0 0 16px; }
+    button { font-size: 16px; padding: 12px 16px; cursor: pointer; }
+    .card { margin-top: 16px; padding: 16px; border: 1px solid #ddd; border-radius: 12px; }
+    .row { margin-top: 10px; }
+    a { word-break: break-all; }
+    .muted { color: #666; font-size: 12px; margin-top: 8px; }
+    .share { margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>今日の推しジョッキー</h1>
 
-      <button id="draw">おみくじを引く</button>
-      <div id="status" class="status"></div>
+    <button id="drawBtn">おみくじを引く</button>
+    <button id="shareBtn" class="share" disabled>シェア</button>
 
-      <div id="result" class="card" style="display:none;">
-        <div class="name" id="jockeyName"></div>
-        <div class="meta">
-          プロフィール：<a id="jockeyUrl" href="#" target="_blank" rel="noreferrer">開く</a>
-        </div>
-        <div class="small" id="debug"></div>
+    <div class="card" id="result" style="display:none;">
+      <div class="row"><strong id="name"></strong></div>
+      <div class="row">
+        <a id="profileLink" href="#" target="_blank" rel="noopener noreferrer">プロフィールを見る</a>
       </div>
+      <div class="muted" id="meta"></div>
     </div>
 
-   <script>
-  const btn = document.getElementById("draw");
-  const statusEl = document.getElementById("status");
-  const resultEl = document.getElementById("result");
-  const nameEl = document.getElementById("jockeyName");
-  const urlEl = document.getElementById("jockeyUrl");
-  const debugEl = document.getElementById("debug");
+    <p class="muted">
+      ※UMAJOのページ構造により、初回は候補収集に少し時間がかかる場合があります。
+    </p>
+  </div>
 
-  function setLoading(isLoading) {
-    btn.disabled = isLoading;
-    statusEl.textContent = isLoading ? "抽選中…" : "";
-  }
+  <script>
+    const drawBtn = document.getElementById("drawBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const resultEl = document.getElementById("result");
+    const nameEl = document.getElementById("name");
+    const linkEl = document.getElementById("profileLink");
+    const metaEl = document.getElementById("meta");
 
-  btn.addEventListener("click", async () => {
-    setLoading(true);
-    resultEl.style.display = "none";
-    statusEl.textContent = "抽選中…";
+    let lastPicked = null;
 
-    try {
-      const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
-      const data = await res.json();
+    async function draw() {
+      drawBtn.disabled = true;
+      shareBtn.disabled = true;
+      drawBtn.textContent = "取得中…";
 
-      if (!res.ok || data.error) {
-        throw new Error(data.message || "API error");
+      try {
+        const res = await fetch("/api/get-jockey", { cache: "no-store" });
+        const data = await res.json();
+
+        if (data.error) {
+          resultEl.style.display = "block";
+          nameEl.textContent = "取得に失敗しました";
+          linkEl.href = "#";
+          linkEl.textContent = data.message || "エラー";
+          metaEl.textContent = "";
+          lastPicked = null;
+          return;
+        }
+
+        lastPicked = data;
+
+        resultEl.style.display = "block";
+        nameEl.textContent = data.picked.name;
+
+        // ✅ ここが今回の変更点：リンク先を picked.profileUrl にする
+        linkEl.href = data.picked.profileUrl;
+        linkEl.target = "_blank";
+        linkEl.rel = "noopener noreferrer";
+        linkEl.textContent = "プロフィールを見る";
+
+        metaEl.textContent = `候補数: ${data.totalCandidates} / 取得元: ${data.source}`;
+
+        shareBtn.disabled = false;
+      } catch (e) {
+        resultEl.style.display = "block";
+        nameEl.textContent = "取得に失敗しました";
+        linkEl.href = "#";
+        linkEl.textContent = String(e);
+        metaEl.textContent = "";
+        lastPicked = null;
+      } finally {
+        drawBtn.disabled = false;
+        drawBtn.textContent = "おみくじを引く";
       }
-
-      // --- ここが一番大事 ---
-      const picked = data.picked || {};
-      const name = picked.name || "（ジョッキー名取得中）";
-      const profileUrl = picked.profileUrl;
-
-      if (!profileUrl) {
-        throw new Error("profileUrl が返ってきていません");
-      }
-
-      nameEl.textContent = name;
-
-      // 🔽 UMAJO個別ページへ飛ぶリンク
-      urlEl.href = profileUrl;
-      urlEl.target = "_blank";
-      urlEl.rel = "noopener noreferrer";
-      urlEl.textContent = "プロフィールを見る";
-
-      debugEl.textContent =
-        `候補数: ${data.totalCandidates ?? "?"} / 取得元: ${data.source ?? "-"}`;
-
-      resultEl.style.display = "block";
-      statusEl.textContent = "";
-    } catch (e) {
-      console.error(e);
-      statusEl.textContent =
-        "エラー：取得に失敗しました。時間をおいて再度お試しください。";
-    } finally {
-      setLoading(false);
     }
-  });
-</script>
 
-  </body>
+    async function share() {
+      if (!lastPicked || !lastPicked.picked) return;
+
+      const text = `今日の推しジョッキーは「${lastPicked.picked.name}」！`;
+      const url = lastPicked.picked.profileUrl;
+
+      // Web Share API（スマホだと強い）
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "今日の推しジョッキー", text, url });
+          return;
+        } catch (e) {
+          // ユーザーキャンセル等は何もしない
+        }
+      }
+
+      // フォールバック：クリップボードにコピー
+      try {
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        alert("シェア文をコピーしました！");
+      } catch {
+        prompt("コピーしてシェアしてください：", `${text}\n${url}`);
+      }
+    }
+
+    drawBtn.addEventListener("click", draw);
+    shareBtn.addEventListener("click", share);
+  </script>
+</body>
 </html>
