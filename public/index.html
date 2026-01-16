@@ -52,41 +52,63 @@
       </div>
     </div>
 
-    <script>
-      const btn = document.getElementById("draw");
-      const statusEl = document.getElementById("status");
-      const resultEl = document.getElementById("result");
-      const nameEl = document.getElementById("jockeyName");
-      const urlEl = document.getElementById("jockeyUrl");
-      const debugEl = document.getElementById("debug");
+   <script>
+  const btn = document.getElementById("draw");
+  const statusEl = document.getElementById("status");
+  const resultEl = document.getElementById("result");
+  const nameEl = document.getElementById("jockeyName");
+  const urlEl = document.getElementById("jockeyUrl");
+  const debugEl = document.getElementById("debug");
 
-      function setLoading(isLoading) {
-        btn.disabled = isLoading;
-        statusEl.textContent = isLoading ? "抽選中…" : "";
+  function setLoading(isLoading) {
+    btn.disabled = isLoading;
+    statusEl.textContent = isLoading ? "抽選中…" : "";
+  }
+
+  btn.addEventListener("click", async () => {
+    setLoading(true);
+    resultEl.style.display = "none";
+    statusEl.textContent = "抽選中…";
+
+    try {
+      const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.message || "API error");
       }
 
-      btn.addEventListener("click", async () => {
-        try {
-          setLoading(true);
-          resultEl.style.display = "none";
+      // --- ここが一番大事 ---
+      const picked = data.picked || {};
+      const name = picked.name || "（ジョッキー名取得中）";
+      const profileUrl = picked.profileUrl;
 
-          const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
-          const data = await res.json();
+      if (!profileUrl) {
+        throw new Error("profileUrl が返ってきていません");
+      }
 
-          if (!res.ok || data.error) throw new Error(data.message || "API error");
+      nameEl.textContent = name;
 
-          nameEl.textContent = data.picked.name;
-          urlEl.href = data.picked.url;
+      // 🔽 UMAJO個別ページへ飛ぶリンク
+      urlEl.href = profileUrl;
+      urlEl.target = "_blank";
+      urlEl.rel = "noopener noreferrer";
+      urlEl.textContent = "プロフィールを見る";
 
-          debugEl.textContent = `候補数: ${data.totalCandidates} / 取得元: ${data.source}`;
-          resultEl.style.display = "block";
-        } catch (e) {
-          statusEl.textContent = "エラー：取得に失敗しました。時間をおいて再度お試しください。";
-          console.error(e);
-        } finally {
-          setLoading(false);
-        }
-      });
-    </script>
+      debugEl.textContent =
+        `候補数: ${data.totalCandidates ?? "?"} / 取得元: ${data.source ?? "-"}`;
+
+      resultEl.style.display = "block";
+      statusEl.textContent = "";
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent =
+        "エラー：取得に失敗しました。時間をおいて再度お試しください。";
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+
   </body>
 </html>
