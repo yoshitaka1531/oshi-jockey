@@ -3,20 +3,17 @@ import iconv from "iconv-lite";
 
 const JRA_LIST_URL = "https://www.jra.go.jp/datafile/meikan/jockey.html";
 
-// 超軽量キャッシュ（Vercelの同一インスタンス内で有効）
+// インスタンス内キャッシュ（JRAへのアクセス頻度を下げる）
 let cache = {
   fetchedAt: 0,
   list: null
 };
-
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6時間
 
 function guessEncodingFromHeaders(contentType = "") {
-  // 例: text/html; charset=Shift_JIS
   const m = /charset\s*=\s*([^\s;]+)/i.exec(contentType);
   return m?.[1] ?? null;
 }
-
 function normalizeEncodingName(enc) {
   if (!enc) return null;
   const e = enc.toLowerCase();
@@ -26,28 +23,57 @@ function normalizeEncodingName(enc) {
   return enc;
 }
 
-function extractJockeysFromHtml(html, baseUrl) {
-  const $ = cheerio.load(html);
+async function fetchHtmlDecoded(url) {
+  const res = await fetch(url, {
+    headers: { "User-Agent": "oshi-jockey-app/1.0 (+https://vercel.com/)" }
+  });
+  if (!res.ok) throw new Error(`Failed to fetch: ${url} (${res.status} ${res.statusText})`);
 
-  // JRAの名鑑系は「騎手名のリンク」が多数ある想定。
-  // とにかく a[href] を舐めて、騎手詳細らしきリンクだけ拾う。
-  // ※もし将来HTML構造が変わっても、hrefパターン中心に追随しやすい。
+  const buf = Buffer.from(await res.arrayBuffer());
+  const contentType = res.headers.get("content-type") || "";
+  const headerEnc = normalizeEncodingName(guessEncodingFromHeaders(contentType));
+
+  const encCandidates = headerEnc ? [headerEnc, "shift_jis", "utf-8"] : ["shift_jis", "utf-8"];
+
+  for (const enc of encCandidates) {
+    try {
+      const decoded = iconv.decode(buf, enc);
+      if (decoded.includes("<html") || decoded.includes("<HTML") || decoded.includes("</")) {
+        return decoded;
+      }
+    } catch {
+      // try next
+    }
+  }
+  throw new Error(`Failed to decode HTML: ${url} content-type=${contentType}`);
+}
+
+function extractMeikanJockeyProfileLinks(html, baseUrl) {
+  const $ = cheerio.load(html);
   const items = [];
   const seen = new Set();
 
   $("a[href]").each((_, a) => {
     const hrefRaw = $(a).attr("href")?.trim();
     const name = $(a).text().replace(/\s+/g, " ").trim();
-
     if (!hrefRaw || !name) return;
 
-    // 騎手詳細ページっぽいものを抽出（名鑑配下など）
-    // 実ページ構造に依存しすぎないよう、広めに拾う
-    const looksLikeJockey =
-      hrefRaw.includes("/datafile/meikan/") &&
-      (hrefRaw.includes("jockey") || hrefRaw.includes("Jockey") || hrefRaw.includes("meikan"));
+    // 一覧ページ自身や、他の一覧/説明ページを除外
+    const deny = [
+      "/datafile/meikan/jockey.html",
+      "/datafile/meikan/young.html",
+      "/datafile/meikan/agent.html",
+      "/datafile/meikan/jretirement.html"
+    ];
+    if (deny.some((d) => hrefRaw.includes(d))) return;
 
-    if (!looksLikeJockey) return;
+    // PDF等を除外
+    if (hrefRaw.toLowerCase().endsWith(".pdf")) return;
+
+    // 名鑑配下の「個人ページっぽいHTML」だけを拾う
+    const isMeikan = hrefRaw.includes("/datafile/meikan/");
+    const isHtml = hrefRaw.toLowerCase().endsWith(".html") || hrefRaw.includes(".html?");
+    if (!isMeikan || !isHtml) return;
 
     let url;
     try {
@@ -56,75 +82,29 @@ function extractJockeysFromHtml(html, baseUrl) {
       return;
     }
 
+    // 目次リンクっぽいもの（あ行/か行 等）を除外
+    if (/^[\u3040-\u309F]行$/.test(name)) return;
+
     const key = `${name}__${url}`;
     if (seen.has(key)) return;
     seen.add(key);
 
-    items.push({ name, url });
+    items.push({ name, meikanUrl: url });
   });
 
-  // 取り過ぎる可能性があるので、明らかに騎手名っぽくないものを軽く除外
-  // （「あ行」「トップ」等のナビが混ざる場合対策）
-  const filtered = items.filter((x) => {
-    // 1文字だけ、記号だけ、"TOP"などを落とす
-    if (x.name.length < 2) return false;
-    if (/^(top|トップ|ホーム|戻る)$/i.test(x.name)) return false;
-    if (/^[\u3040-\u309F]行$/.test(x.name)) return false; // あ行/か行等
-    return true;
-  });
-
-  return filtered;
+  // 念のため、短すぎ/明らかにナビっぽいものを落とす
+  return items.filter((x) => x.name.length >= 2);
 }
 
 async function fetchJockeyList() {
   const now = Date.now();
-  if (cache.list && now - cache.fetchedAt < CACHE_TTL_MS) {
-    return cache.list;
-  }
+  if (cache.list && now - cache.fetchedAt < CACHE_TTL_MS) return cache.list;
 
-  const res = await fetch(JRA_LIST_URL, {
-    headers: {
-      "User-Agent": "oshi-jockey-app/1.0 (+https://vercel.com/)"
-    }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch JRA page: ${res.status} ${res.statusText}`);
-  }
-
-  // 文字化け対策：ArrayBufferで受けてiconvでデコード
-  const buf = Buffer.from(await res.arrayBuffer());
-  const contentType = res.headers.get("content-type") || "";
-  const headerEnc = normalizeEncodingName(guessEncodingFromHeaders(contentType));
-
-  // ヘッダから分からなければShift_JISを優先（JRAの国内ページで多い）
-  const encCandidates = headerEnc ? [headerEnc, "shift_jis", "utf-8"] : ["shift_jis", "utf-8"];
-
-  let html = null;
-  let lastErr = null;
-
-  for (const enc of encCandidates) {
-    try {
-      const decoded = iconv.decode(buf, enc);
-      // ざっくり妥当性チェック：HTMLっぽいか
-      if (decoded.includes("<html") || decoded.includes("<HTML") || decoded.includes("</")) {
-        html = decoded;
-        break;
-      }
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-
-  if (!html) {
-    throw new Error(`Failed to decode HTML. content-type=${contentType} err=${String(lastErr)}`);
-  }
-
-  const list = extractJockeysFromHtml(html, JRA_LIST_URL);
+  const html = await fetchHtmlDecoded(JRA_LIST_URL);
+  const list = extractMeikanJockeyProfileLinks(html, JRA_LIST_URL);
 
   if (!list.length) {
-    // ここに来る場合：HTML構造が変わった / 抽出条件が厳しすぎる
-    throw new Error("No jockey links found. JRA page structure may have changed.");
+    throw new Error("No jockey profile links found. JRA page structure may have changed.");
   }
 
   cache = { fetchedAt: now, list };
@@ -136,30 +116,62 @@ function pickOne(arr) {
   return arr[idx];
 }
 
+// 名鑑の個人ページから「JRADB accessK」への“個人リンク（パラメータ付き）”を探す
+async function findJradbProfileUrlFromMeikan(meikanUrl) {
+  const html = await fetchHtmlDecoded(meikanUrl);
+  const $ = cheerio.load(html);
+
+  // accessK へのリンクを探索（パラメータ付きがあればそれを優先）
+  const candidates = [];
+  $("a[href]").each((_, a) => {
+    const href = ($(a).attr("href") || "").trim();
+    if (!href) return;
+    if (!href.includes("/JRADB/accessK.html")) return;
+
+    let abs;
+    try {
+      abs = new URL(href, meikanUrl).toString();
+    } catch {
+      return;
+    }
+    candidates.push(abs);
+  });
+
+  // パラメータ付き（? が付いている）を優先
+  const withQuery = candidates.find((u) => u.includes("?"));
+  return withQuery || candidates[0] || null;
+}
+
 export default async function handler(req, res) {
   try {
     const list = await fetchJockeyList();
     const picked = pickOne(list);
 
-    // VercelのCDNキャッシュ（同時アクセスが増えてもJRAへ行きすぎないように）
-    res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400"); // 6h 캐시
+    // JRADBリンクを付与（取れなければ名鑑URLを返す）
+    let jradbUrl = null;
+    try {
+      jradbUrl = await findJradbProfileUrlFromMeikan(picked.meikanUrl);
+    } catch {
+      // 取得失敗でもアプリが落ちないよう握りつぶし、保険で名鑑URLへ
+      jradbUrl = null;
+    }
 
+    res.setHeader("Cache-Control", "s-maxage=21600, stale-while-revalidate=86400");
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.status(200).send(
       JSON.stringify({
         source: JRA_LIST_URL,
-        picked,
+        picked: {
+          name: picked.name,
+          meikanUrl: picked.meikanUrl,
+          profileUrl: jradbUrl || picked.meikanUrl
+        },
         totalCandidates: list.length,
         generatedAt: new Date().toISOString()
       })
     );
   } catch (e) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.status(500).send(
-      JSON.stringify({
-        error: true,
-        message: e?.message || String(e)
-      })
-    );
+    res.status(500).send(JSON.stringify({ error: true, message: e?.message || String(e) }));
   }
 }
