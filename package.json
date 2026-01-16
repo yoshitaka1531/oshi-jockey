@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('No build step needed for static + serverless functions')\""
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "iconv-lite": "^0.6.3"
