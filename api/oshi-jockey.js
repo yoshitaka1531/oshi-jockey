@@ -1,124 +1,151 @@
-// api/oshi-jockey.js
-// UMAJOの個別ページを巡回して「掲載されている全ジョッキー」を収集してからランダム抽選します。
-// ※UMAJOの各ページには Previous/Next があり、これを辿ることで全ページを集められる前提です。:contentReference[oaicite:1]{index=1}
+// api/get-jockey.js
+// UMAJOの騎手ページを「Next/Previous」を辿ってできるだけ多く集め、ランダム1名を返します。
 
 const BASE = "https://umajo.jra.jp";
 
-// あなたがくれたURLを起点にします（複数あるほど安定）
-const SEEDS = [
-  `${BASE}/jockey/yuga_kawada.html`,
-  `${BASE}/jockey/christophe_lemaire.html`,
-  `${BASE}/jockey/keita_tosaki.html`,
-  `${BASE}/jockey/kohei_matsuyama.html`,
-  `${BASE}/jockey/kazuki_kikuzawa.html`,
-  `${BASE}/jockey/ryota_sameshima.html`,
-];
+// 最初に辿り始めるページ（ここは既知の1枚でOK）
+const START_URL = `${BASE}/jockey/yuga_kawada.html`;
 
-const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12時間キャッシュ
-const MAX_FETCH = 500;   // 取得回数上限（暴走防止）
-const MAX_PAGES = 400;   // 収集ページ上限（十分大きめ）
+// 安全のため上限（無限ループ防止）
+const MAX_PAGES = 600;
 
-let cache = { at: 0, pages: [] };
-
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function uniq(arr) {
+  return [...new Set(arr)];
 }
 
-async function fetchText(url) {
+function absUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  if (url.startsWith("/")) return BASE + url;
+  return BASE + "/" + url;
+}
+
+// HTMLから候補URLを拾う（aタグ / link rel=next,prev / 文字列中の /jockey/*.html）
+function extractJockeyUrls(html) {
+  const urls = [];
+
+  // 1) <link rel="next" href="..."> / <link rel="prev" href="...">
+  {
+    const re = /<link[^>]+rel=["'](?:next|prev|previous)["'][^>]+href=["']([^"']+)["']/gi;
+    let m;
+    while ((m = re.exec(html))) {
+      const u = absUrl(m[1]);
+      if (u && u.includes("/jockey/") && u.endsWith(".html")) urls.push(u);
+    }
+  }
+
+  // 2) <a href="/jockey/xxx.html">
+  {
+    const re = /<a[^>]+href=["']([^"']+\/jockey\/[^"']+\.html)["']/gi;
+    let m;
+    while ((m = re.exec(html))) {
+      const u = absUrl(m[1]);
+      if (u) urls.push(u);
+    }
+  }
+
+  // 3) 文字列中に現れる /jockey/xxx.html（JSやJSONに埋まっているケース対策）
+  {
+    const re = /\/jockey\/[a-z0-9_]+\.html/gi;
+    const matches = html.match(re) || [];
+    for (const p of matches) urls.push(absUrl(p));
+  }
+
+  return uniq(urls);
+}
+
+// HTMLから騎手名を抜く（h1がない場合もあるので保険で複数パターン）
+function extractName(html) {
+  // よくある：<h1>戸崎 圭太</h1> みたいなもの（サイトにより構造差あり）
+  let m = html.match(/<h1[^>]*>\s*([^<]+)\s*<\/h1>/i);
+  if (m) return m[1].trim();
+
+  // 画像altなどに "戸崎 圭太 Keita Tosaki" のように入っていることがある
+  m = html.match(/<img[^>]+alt=["']([^"']+)["'][^>]*>/i);
+  if (m) {
+    const t = m[1].trim();
+    // "戸崎 圭太 Keita Tosaki" → 日本語側だけ寄せたい場合の簡易処理
+    return t.split("  ")[0].split(" ").slice(0, 2).join(" ").trim() || t;
+  }
+
+  // 最後の保険：タイトル
+  m = html.match(/<title>\s*([^<]+)\s*<\/title>/i);
+  if (m) return m[1].replace(/\s*\|.*$/, "").trim();
+
+  return "(ジョッキー)";
+}
+
+async function fetchHtml(url) {
   const res = await fetch(url, {
     headers: {
-      "user-agent": "oshi-jockey-vercel/1.0",
-      accept: "text/html,*/*",
+      // できるだけ素直なHTMLを返してもらう
+      "User-Agent": "Mozilla/5.0",
+      "Accept": "text/html,application/xhtml+xml",
+      "Accept-Language": "ja,en;q=0.8",
     },
   });
-  if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${url}`);
+  if (!res.ok) throw new Error(`Fetch failed ${res.status} for ${url}`);
   return await res.text();
 }
 
-// <title> から名前を拾う（安定しやすい）
-function extractName(html) {
-  const t = html.match(/<title[^>]*>\s*([^<]+?)\s*<\/title>/i);
-  if (t) {
-    const title = t[1].replace(/\s+/g, " ").trim();
-    const name = title.split("|")[0].trim();
-    if (name && name.length >= 2) return name;
-  }
-  // 保険（h1がある場合）
-  const h1 = html.match(/<h1[^>]*>\s*([^<]+?)\s*<\/h1>/i);
-  if (h1) {
-    const name = h1[1].replace(/\s+/g, " ").trim();
-    if (name && name.length >= 2) return name;
-  }
-  return null;
-}
-
-// 「/jockey/xxxx.html」をHTML内から片っ端から拾う（hrefだけでなく data-href 等も拾える）
-function extractJockeyLinks(html) {
-  const re = /\/jockey\/[a-z0-9_]+\.html/gi;
-  const found = new Set();
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    found.add(`${BASE}${m[0]}`);
-  }
-  return [...found];
-}
-
-async function buildUmajoJockeyList() {
-  // キャッシュ
-  if (cache.pages.length > 0 && Date.now() - cache.at < CACHE_TTL_MS) {
-    return cache.pages;
-  }
-
+async function crawlAllFromStart() {
   const visited = new Set();
-  const queue = [...SEEDS];
-  const pages = [];
-  let fetchCount = 0;
+  const queue = [START_URL];
+  const jockeyPages = [];
 
-  while (queue.length > 0 && fetchCount < MAX_FETCH && pages.length < MAX_PAGES) {
+  while (queue.length && visited.size < MAX_PAGES) {
     const url = queue.shift();
     if (!url || visited.has(url)) continue;
     visited.add(url);
 
     let html;
     try {
-      html = await fetchText(url);
-      fetchCount++;
+      html = await fetchHtml(url);
     } catch {
-      continue; // 1ページ落ちても継続
+      continue;
     }
 
-    const name = extractName(html) || "(ジョッキー)";
-    pages.push({ name, profileUrl: url });
+    // 騎手ページっぽいものだけ収集
+    if (url.includes("/jockey/") && url.endsWith(".html")) {
+      jockeyPages.push(url);
+    }
 
-    // 次候補リンクを追加（Previous/Next含め、HTML内の/jockey/*.htmlを全部拾う）
-    const links = extractJockeyLinks(html);
-    for (const link of links) {
-      if (!visited.has(link)) queue.push(link);
+    // 次のURL候補を抽出してキューへ
+    const nextUrls = extractJockeyUrls(html);
+    for (const u of nextUrls) {
+      if (!visited.has(u)) queue.push(u);
     }
   }
 
-  // 最低限（万一巡回できない場合でもSEEDS分は返す）
-  const uniq = new Map();
-  for (const p of pages) uniq.set(p.profileUrl, p);
-  const result = [...uniq.values()];
-
-  cache = { at: Date.now(), pages: result.length ? result : SEEDS.map(u => ({ name: "(ジョッキー)", profileUrl: u })) };
-  return cache.pages;
+  // 保険：重複排除
+  return uniq(jockeyPages);
 }
 
 export default async function handler(req, res) {
   try {
-    const candidates = await buildUmajoJockeyList();
-    const picked = pickRandom(candidates);
+    const pages = await crawlAllFromStart();
 
-    res.setHeader("Cache-Control", "s-maxage=43200, stale-while-revalidate=86400"); // 12h
-    res.status(200).json({
+    if (!pages.length) {
+      return res.status(200).json({
+        error: true,
+        message: "No UMAJO jockey pages found. Page structure may have changed.",
+      });
+    }
+
+    // ランダムに1人選ぶ
+    const profileUrl = pages[Math.floor(Math.random() * pages.length)];
+
+    // 選ばれたページから名前を抽出
+    const pickedHtml = await fetchHtml(profileUrl);
+    const name = extractName(pickedHtml);
+
+    return res.status(200).json({
       error: false,
-      source: "UMAJO (crawl all jockey pages)",
-      totalCandidates: candidates.length,
-      picked,
+      source: "UMAJO (crawl by next/prev/link discovery)",
+      totalCandidates: pages.length,
+      picked: { name, profileUrl },
     });
   } catch (e) {
-    res.status(200).json({ error: true, message: e?.message || "Unknown error" });
+    return res.status(200).json({ error: true, message: String(e?.message || e) });
   }
 }
