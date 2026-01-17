@@ -32,7 +32,6 @@
         linear-gradient(180deg, var(--paper), var(--paper2));
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
     }
-    /* 和紙っぽい質感 */
     body::before{
       content:"";
       position:fixed;
@@ -46,7 +45,6 @@
     }
 
     .wrap{max-width:980px;margin:0 auto}
-
     .grid{
       display:grid;
       gap:14px;
@@ -56,7 +54,6 @@
       .grid{ grid-template-columns: 1fr 1fr; }
     }
 
-    /* おみくじ台（共通カード） */
     .shrine{
       border:1px solid var(--line);
       border-radius:18px;
@@ -83,14 +80,13 @@
       user-select:none;
     }
 
-    /* 見出し（カード内） */
     .title{
       font-family:"Yuji Syuku","Yuji Boku",serif;
       font-size:34px;
       letter-spacing:.08em;
       margin:0;
       line-height:1.15;
-      padding-right:78px; /* 朱印と干渉しない */
+      padding-right:78px;
     }
     .hint{
       margin:8px 0 0;
@@ -198,13 +194,13 @@
       display:none;
     }
 
-    /* 馬券おみくじ：設定欄 */
+    /* 馬券おみくじ UI */
     .sectionTitle{
       font-family:"Yuji Syuku","Yuji Boku",serif;
       font-size:22px;
       letter-spacing:.10em;
       margin:0 0 10px;
-      padding-right:78px; /* 朱印と干渉しない */
+      padding-right:78px;
     }
     .formRow{
       display:flex;
@@ -231,130 +227,23 @@
     }
     input{width:140px}
 
-    /* 馬券っぽいカード（強化版 / オリジナル） */
-    .ticket{
+    /* ★馬券“画像”枠（SVGを入れる） */
+    .ticketWrap{
       margin-top:14px;
       display:none;
       border:1px solid var(--line);
       border-radius:16px;
-      background:rgba(255,255,255,.68);
+      background:rgba(255,255,255,.66);
       overflow:hidden;
       box-shadow: 0 10px 26px var(--shadow);
-      position:relative;
     }
-    /* 馬券風の薄い透かし（蹄鉄風） */
-    .ticket::after{
-      content:"";
-      position:absolute;
-      right:-60px; top:-60px;
-      width:260px; height:260px;
-      border-radius:999px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(26,74,165,.10), transparent 62%),
-        radial-gradient(circle at 65% 70%, rgba(176,0,32,.08), transparent 60%);
-      transform:rotate(10deg);
-      pointer-events:none;
+    .ticketSvg{
+      width:100%;
+      height:auto;
+      display:block;
+      background:#fff;
     }
-    .ticketTop{
-      display:grid;
-      grid-template-columns: 92px 1fr;
-      gap:12px;
-      padding:14px;
-      border-bottom:1px dashed rgba(0,0,0,.12);
-      position:relative;
-    }
-    /* 左側：QRっぽいブロック（雰囲気） */
-    .qrBox{
-      border:1px solid rgba(0,0,0,.18);
-      border-radius:12px;
-      background:rgba(0,0,0,.03);
-      padding:10px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:center;
-      justify-content:center;
-    }
-    .qr{
-      width:64px;height:64px;
-      border-radius:10px;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,.10) 0 1px, transparent 1px 6px),
-        linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 6px);
-      background-size:6px 6px;
-      opacity:.55;
-      border:1px solid rgba(0,0,0,.16);
-    }
-    .qrSmall{
-      width:64px;height:18px;
-      border-radius:8px;
-      border:1px solid rgba(0,0,0,.16);
-      background:rgba(255,255,255,.60);
-      font-size:11px;
-      display:grid;
-      place-items:center;
-      color:#333;
-    }
-
-    /* 右側：本体 */
-    .ticketBody{
-      display:flex;
-      gap:12px;
-      align-items:stretch;
-    }
-    .ticketType{
-      min-width:64px;
-      border:1px solid rgba(0,0,0,.18);
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px 6px;
-      background:rgba(0,0,0,.04);
-      font-family:"Yuji Syuku","Yuji Boku",serif;
-      letter-spacing:.1em;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      font-size:18px;
-    }
-    .ticketMain{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      padding-top:2px;
-    }
-    .ticketLine{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .ticketRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
-    }
-    .chip{
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid rgba(0,0,0,.18);
-      background:rgba(255,255,255,.78);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      letter-spacing:.08em;
-      font-size:14px;
-    }
-    .mul{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:13px;
-      opacity:.85;
-    }
-    .ticketHint{
-      font-size:12px;
-      color:#444;
-      line-height:1.6;
-    }
-    .ticketBottom{
+    .ticketBottomRow{
       padding:12px 14px;
       display:flex;
       flex-wrap:wrap;
@@ -362,6 +251,7 @@
       align-items:center;
       justify-content:space-between;
       background:rgba(255,255,255,.45);
+      border-top:1px dashed rgba(0,0,0,.10);
     }
     .yen{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -407,8 +297,6 @@
       .vertical{font-size:24px; min-height:190px;}
       .actions{min-width:unset}
       label{min-width:unset}
-      .ticketTop{grid-template-columns: 84px 1fr;}
-      .ticketType{min-width:58px;}
     }
   </style>
 </head>
@@ -417,7 +305,7 @@
   <div class="wrap">
     <div class="grid">
 
-      <!-- ✅ 青枠の部分：タイトル〜ボタン〜結果を「1カード」にまとめる -->
+      <!-- 推しジョッキー（カードで囲い） -->
       <div class="shrine">
         <div class="seal">推</div>
 
@@ -425,7 +313,6 @@
         <p class="hint">神社のおみくじ風に、今日の推しを授かります。</p>
 
         <div class="btnrow">
-          <!-- ★IDは維持（壊れないため） -->
           <button id="drawBtn" class="btn main" type="button">勝負！</button>
           <button id="shareBtn" class="btn share" type="button" disabled>シェア</button>
         </div>
@@ -441,16 +328,14 @@
                 ※開けない場合は時間をおいて再度お試しください。
               </div>
 
-              <!-- 候補数表示は出さない -->
               <div id="meta" style="display:none;"></div>
-
               <div class="err" id="err"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 馬券おみくじ（A→C→B） -->
+      <!-- 馬券おみくじ -->
       <div class="shrine">
         <div class="seal">券</div>
 
@@ -477,7 +362,6 @@
             <input id="fieldSize" type="number" min="2" max="18" value="12" />
           </label>
 
-          <!-- ✅ A：点数 -->
           <label>
             点数
             <select id="ticketPoints">
@@ -487,7 +371,6 @@
             </select>
           </label>
 
-          <!-- ✅ B：合計金額 -->
           <label>
             合計金額（円）
             <input id="budget" type="number" min="100" step="100" value="1000" />
@@ -496,43 +379,21 @@
           <button id="ticketBtn" class="btn main" type="button">馬券おみくじ</button>
         </div>
 
-        <!-- ✅ 馬券表示：馬券感UP -->
-        <div class="ticket" id="ticket">
-          <div class="ticketTop">
-            <div class="qrBox">
-              <div class="qr"></div>
-              <div class="qrSmall" id="raceInfo">R / N</div>
-            </div>
-
-            <div class="ticketBody">
-              <div class="ticketType" id="ticketTypeLabel">単勝</div>
-
-              <div class="ticketMain">
-                <div class="ticketLine" id="ticketLines">
-                  <!-- JSで行を生成 -->
-                </div>
-
-                <div class="ticketHint" id="ticketHint">
-                  ※本機能はランダム生成です。実際の購入判断はご自身の責任でお願いいたします。
-                </div>
-
-                <a id="ticketShareLink" class="link" href="#" style="display:none;">この馬券をシェア</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="ticketBottom">
+        <!-- ★ここが“馬券画像”になります -->
+        <div class="ticketWrap" id="ticketWrap">
+          <div id="ticketSvgMount"></div>
+          <div class="ticketBottomRow">
             <div class="yen" id="ticketAmount">合計：1000円</div>
             <div class="stamp" id="ticketFortune">吉</div>
           </div>
         </div>
 
+        <a id="ticketShareLink" class="link" href="#" style="display:none;margin-top:10px;">この馬券をシェア</a>
         <div class="err" id="ticketErr"></div>
       </div>
 
     </div>
 
-    <!-- おすすめサイト（最下部） -->
     <div class="footer">
       <h2>おすすめサイト</h2>
       <a class="footlink"
@@ -544,7 +405,7 @@
   </div>
 
   <script>
-    // ====== 既存：ジョッキーおみくじ（壊さない） ======
+    // ====== 推しジョッキー ======
     const drawBtn  = document.getElementById("drawBtn");
     const shareBtn = document.getElementById("shareBtn");
     const resultEl = document.getElementById("result");
@@ -556,7 +417,6 @@
     let lastTicket = null;
 
     function setShareEnabled(){
-      // どちらかの結果があればシェア可能
       shareBtn.disabled = !(lastPicked || lastTicket);
     }
 
@@ -622,15 +482,12 @@
       }
       if(lastTicket){
         parts.push(`馬券おみくじ：${lastTicket.typeLabel} / ${lastTicket.linesText}（合計${lastTicket.total}円）`);
-        // URLはジョッキーURL優先。なければサイトURL。
       }
-
       return { text: parts.join("\n"), url };
     }
 
     async function share(){
       if(!(lastPicked || lastTicket)) return;
-
       const { text, url } = buildShareText();
 
       if(navigator.share){
@@ -653,14 +510,11 @@
     const pointsEl = document.getElementById("ticketPoints");
     const budgetEl = document.getElementById("budget");
 
-    const ticketEl = document.getElementById("ticket");
-    const ticketTypeLabelEl = document.getElementById("ticketTypeLabel");
-    const ticketLinesEl = document.getElementById("ticketLines");
+    const ticketWrapEl = document.getElementById("ticketWrap");
+    const ticketSvgMount = document.getElementById("ticketSvgMount");
     const ticketAmountEl = document.getElementById("ticketAmount");
-    const ticketHintEl = document.getElementById("ticketHint");
-    const ticketErrEl = document.getElementById("ticketErr");
-    const raceInfoEl = document.getElementById("raceInfo");
     const ticketFortuneEl = document.getElementById("ticketFortune");
+    const ticketErrEl = document.getElementById("ticketErr");
     const ticketShareLinkEl = document.getElementById("ticketShareLink");
 
     const typeLabels = {
@@ -686,7 +540,6 @@
     }
     function sortAsc(arr){ return [...arr].sort((a,b)=>a-b); }
 
-    // 枠（1〜8）に馬番（1〜N）を割り当て（雰囲気用）
     function frameOfHorse(horseNo, fieldSize){
       const frames = 8;
       const idx = Math.floor((horseNo - 1) * frames / fieldSize) + 1;
@@ -696,46 +549,44 @@
     function buildPick(type, fieldSize){
       if(type === "win"){
         const a = randInt(1, fieldSize);
-        return { display: `馬番 ${a}`, hint: "単勝：1頭" };
+        return { display: `15`, raw: [a], text: `馬番 ${a}`, hint: "単勝：1頭" };
       }
       if(type === "place"){
         const a = randInt(1, fieldSize);
-        return { display: `馬番 ${a}`, hint: "複勝：1頭" };
+        return { raw: [a], text: `馬番 ${a}`, hint: "複勝：1頭" };
       }
       if(type === "umaren"){
         const [a,b] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
-        return { display: `馬番 ${a} - ${b}`, hint: "馬連：2頭（順不同）" };
+        return { raw: [a,b], text: `馬番 ${a}-${b}`, hint: "馬連：2頭（順不同）" };
       }
       if(type === "wide"){
         const [a,b] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
-        return { display: `馬番 ${a} - ${b}`, hint: "ワイド：2頭（順不同）" };
+        return { raw: [a,b], text: `馬番 ${a}-${b}`, hint: "ワイド：2頭（順不同）" };
       }
       if(type === "umatan"){
         const [a,b] = sampleUniqueNumbers(2, 1, fieldSize);
-        return { display: `馬番 ${a} → ${b}`, hint: "馬単：2頭（順序あり）" };
+        return { raw: [a,b], text: `馬番 ${a}→${b}`, hint: "馬単：2頭（順序あり）" };
       }
       if(type === "trio"){
         const [a,b,c] = sortAsc(sampleUniqueNumbers(3, 1, fieldSize));
-        return { display: `馬番 ${a} - ${b} - ${c}`, hint: "3連複：3頭（順不同）" };
+        return { raw: [a,b,c], text: `馬番 ${a}-${b}-${c}`, hint: "3連複：3頭（順不同）" };
       }
       if(type === "trifecta"){
         const [a,b,c] = sampleUniqueNumbers(3, 1, fieldSize);
-        return { display: `馬番 ${a} → ${b} → ${c}`, hint: "3連単：3頭（順序あり）" };
+        return { raw: [a,b,c], text: `馬番 ${a}→${b}→${c}`, hint: "3連単：3頭（順序あり）" };
       }
       if(type === "wakuren"){
         const [h1,h2] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
         const f1 = frameOfHorse(h1, fieldSize);
         const f2 = frameOfHorse(h2, fieldSize);
         const [a,b] = sortAsc([f1,f2]);
-        return { display: `枠 ${a} - ${b}`, hint: "枠連：2枠（順不同）" };
+        return { raw: [a,b], text: `枠 ${a}-${b}`, hint: "枠連：2枠（順不同）" };
       }
-      return { display: "-", hint: "" };
+      return { raw: [], text: "-", hint: "" };
     }
 
-    function normalizePick(type, display){
-      // 重複チェック用の正規化
-      // 順不同系はそのまま、順序系はdisplayそのまま
-      return `${type}:${display}`.replace(/\s+/g,"").trim();
+    function normalizePick(type, text){
+      return `${type}:${text}`.replace(/\s+/g,"").trim();
     }
 
     function showTicketError(msg){
@@ -749,29 +600,20 @@
 
     function updatePointsOptions(){
       const type = betTypeEl.value;
-
-      // 単勝/複勝は1点固定
       const fixed1 = (type === "win" || type === "place");
-      const allow5 = !(type === "win" || type === "place") ; // 基本OK
-      const allow3 = true;
-
       const current = pointsEl.value;
 
       pointsEl.innerHTML = "";
       pointsEl.appendChild(new Option("1点", "1"));
-      if(!fixed1 && allow3) pointsEl.appendChild(new Option("3点", "3"));
-      if(!fixed1 && allow5) pointsEl.appendChild(new Option("5点", "5"));
+      if(!fixed1) pointsEl.appendChild(new Option("3点", "3"));
+      if(!fixed1) pointsEl.appendChild(new Option("5点", "5"));
 
-      // 以前の選択を可能なら維持
       const values = [...pointsEl.options].map(o=>o.value);
       pointsEl.value = values.includes(current) ? current : "1";
-
-      // fixed1なら選択不可（見た目上のミス防止）
       pointsEl.disabled = fixed1;
     }
 
     function splitBudget(total, points){
-      // 100円単位で均等配分（余りは先頭から）
       const base = Math.floor(total / points / 100) * 100;
       let used = base * points;
       let rem = total - used;
@@ -783,19 +625,129 @@
         rem -= 100;
         i++;
       }
-      // 端数が出たら最後に足す（見た目優先）
       if(rem > 0) arr[arr.length - 1] += rem;
-
       return arr;
     }
 
     function fortuneByTotal(total){
-      // 完全ランダムでもよいですが、軽く雰囲気を出します
       const pool = ["大吉","中吉","吉","小吉","末吉"];
-      // 1000円以上だと少し上振れしやすい程度
       const bias = total >= 1000 ? ["大吉","中吉"] : [];
       const pick = pool.concat(bias);
       return pick[randInt(0, pick.length - 1)];
+    }
+
+    // ====== ここがメイン：馬券“画像”をSVGで生成 ======
+    function esc(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      })[m]);
+    }
+
+    function makeTicketSVG({ venue, raceNo, typeLabel, fieldSize, points, picks, alloc, total }){
+      // 票面サイズ（レスポンシブで縮小されます）
+      const W = 980, H = 420;
+
+      // 右側に表示する買い目テキスト（票面っぽく整形）
+      const lines = picks.map((p, i) => ({
+        text: p.text.replace("馬番 ", "").replace("枠 ", "枠 ").replace(/-/g, " - ").replace(/→/g, " → "),
+        yen: `${alloc[i].toLocaleString()}円`
+      }));
+
+      // 券種縦表示用（2文字ずつ改行して縦の雰囲気）
+      const typeVertical = typeLabel.split("").join("\n");
+
+      // 透かし（蹄鉄っぽい丸と薄い文字）
+      const watermark = `
+        <g opacity="0.10">
+          <circle cx="720" cy="140" r="120" fill="#1a4aa5"/>
+          <circle cx="840" cy="260" r="140" fill="#b00020"/>
+        </g>
+      `;
+
+      // 背景の薄いストライプ
+      const stripes = `
+        <defs>
+          <pattern id="stripes" width="14" height="14" patternUnits="userSpaceOnUse">
+            <rect width="14" height="14" fill="#f7fbf7"/>
+            <rect width="7" height="14" fill="#e7f6ef"/>
+          </pattern>
+        </defs>
+        <rect x="0" y="0" width="${W}" height="${H}" fill="url(#stripes)"/>
+      `;
+
+      // QR風
+      const qr = `
+        <g transform="translate(28,98)">
+          <rect x="0" y="0" width="160" height="160" rx="10" fill="#fff" stroke="#111" opacity="0.85"/>
+          ${Array.from({length:10}).map((_,r)=>
+            Array.from({length:10}).map((__,c)=>{
+              const on = (r*c + r + c) % 3 === 0;
+              return on ? `<rect x="${10+c*14}" y="${10+r*14}" width="10" height="10" fill="#111" opacity="0.65"/>` : "";
+            }).join("")
+          ).join("")}
+        </g>
+      `;
+
+      // 左の情報欄
+      const left = `
+        <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif" fill="#111">
+          <text x="30" y="48" font-size="44" font-weight="800">${esc(venue)}</text>
+          <text x="205" y="48" font-size="28" font-weight="700">（日）</text>
+
+          <rect x="30" y="70" width="110" height="82" rx="10" fill="#111"/>
+          <text x="85" y="124" font-size="50" font-weight="900" fill="#fff" text-anchor="middle">${raceNo}</text>
+          <text x="160" y="124" font-size="34" font-weight="800">レース</text>
+
+          ${qr}
+
+          <text x="30" y="370" font-size="22" opacity="0.85">頭数：${fieldSize} / 点数：${points}</text>
+        </g>
+      `;
+
+      // 中央の券種縦欄
+      const center = `
+        <g>
+          <rect x="380" y="40" width="120" height="340" fill="#fff" stroke="#111" stroke-width="4"/>
+          <text x="440" y="85" font-size="20" font-weight="800" text-anchor="middle" opacity="0.8">BET</text>
+          <text x="440" y="205" font-size="66" font-weight="900" text-anchor="middle" style="white-space:pre; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif;">${esc(typeVertical)}</text>
+          <text x="440" y="350" font-size="20" font-weight="800" text-anchor="middle" opacity="0.8">BET</text>
+        </g>
+      `;
+
+      // 右側：買い目＋金額（票面風）
+      const right = `
+        <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif" fill="#111">
+          ${lines.map((ln, idx)=>{
+            const y = 120 + idx*70;
+            return `
+              <g>
+                <rect x="540" y="${y-44}" width="92" height="64" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="586" y="${y-2}" font-size="34" font-weight="900" text-anchor="middle">${esc(String(ln.text).split(/[ -→]/)[0] || "")}</text>
+
+                <text x="650" y="${y}" font-size="44" font-weight="900">${esc(ln.text)}</text>
+                <text x="650" y="${y+40}" font-size="34" font-weight="900">${esc(ln.yen)}</text>
+              </g>
+            `;
+          }).join("")}
+
+          <text x="540" y="388" font-size="26" font-weight="800">合計</text>
+          <text x="640" y="388" font-size="44" font-weight="900">${total.toLocaleString()}円</text>
+        </g>
+      `;
+
+      // 票面フレーム
+      const frame = `<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="18" fill="none" stroke="#111" stroke-width="6"/>`;
+
+      return `
+        <svg class="ticketSvg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="馬券">
+          ${stripes}
+          ${watermark}
+          ${left}
+          ${center}
+          ${right}
+          ${frame}
+        </svg>
+      `;
     }
 
     function drawTicket(){
@@ -815,82 +767,57 @@
         return;
       }
 
-      // 点数の整合（単勝/複勝は1点固定）
       const fixed1 = (type === "win" || type === "place");
       const finalPoints = fixed1 ? 1 : points;
 
-      // 重複しないように複数点を生成
       const set = new Set();
       const picks = [];
-      const maxTry = 50;
+      const maxTry = 80;
 
       for(let t=0; t<maxTry && picks.length < finalPoints; t++){
-        const { display, hint } = buildPick(type, fieldSize);
-        const key = normalizePick(type, display);
+        const p = buildPick(type, fieldSize);
+        const key = normalizePick(type, p.text);
         if(set.has(key)) continue;
         set.add(key);
-        picks.push({ display, hint });
+        picks.push(p);
       }
       if(picks.length < finalPoints){
         showTicketError("買い目の生成に失敗しました。時間をおいて再度お試しください。");
         return;
       }
 
-      // 金額配分（B）
       const alloc = splitBudget(budget, finalPoints);
 
-      // 表示反映
-      ticketTypeLabelEl.textContent = typeLabels[type] || "馬券";
-      raceInfoEl.textContent = `${randInt(1,12)}R / ${fieldSize}頭`; // 雰囲気
+      // 票面用の雰囲気パラメータ
+      const venue = ["阪神","京都","東京","中山","札幌","函館","新潟","中京","小倉"][randInt(0,8)];
+      const raceNo = randInt(1, 12);
+      const typeLabel = typeLabels[type] || "馬券";
 
-      ticketLinesEl.innerHTML = "";
-      picks.forEach((p, i)=>{
-        const row = document.createElement("div");
-        row.className = "ticketRow";
-
-        const chip = document.createElement("span");
-        chip.className = "chip";
-        chip.textContent = p.display;
-
-        const mul = document.createElement("span");
-        mul.className = "mul";
-        mul.textContent = `× ${alloc[i]}円`;
-
-        row.appendChild(chip);
-        row.appendChild(mul);
-        ticketLinesEl.appendChild(row);
+      // SVG生成して差し込み
+      ticketSvgMount.innerHTML = makeTicketSVG({
+        venue, raceNo, typeLabel,
+        fieldSize, points: finalPoints,
+        picks, alloc, total: budget
       });
 
-      const hint = picks[0]?.hint || "";
-      ticketHintEl.textContent = `※${hint} / 頭数 ${fieldSize} / ${finalPoints}点（ランダム生成）`;
-      ticketAmountEl.textContent = `合計：${budget}円`;
+      ticketWrapEl.style.display = "block";
+      ticketAmountEl.textContent = `合計：${budget.toLocaleString()}円`;
       ticketFortuneEl.textContent = fortuneByTotal(budget);
 
-      ticketEl.style.display = "block";
-
-      // シェア用に保持（C）
-      const linesText = picks.map((p,i)=>`${p.display}×${alloc[i]}円`).join(" / ");
-      lastTicket = {
-        typeLabel: typeLabels[type] || "馬券",
-        linesText,
-        total: budget,
-      };
+      // シェア用
+      const linesText = picks.map((p,i)=>`${p.text.replace("馬番 ","").replace("枠 ","枠 ")}×${alloc[i]}円`).join(" / ");
+      lastTicket = { typeLabel, linesText, total: budget };
       setShareEnabled();
 
-      // “この馬券をシェア”リンク（補助）
       ticketShareLinkEl.style.display = "inline-block";
-      ticketShareLinkEl.onclick = (e)=>{
-        e.preventDefault();
-        share();
-      };
+      ticketShareLinkEl.onclick = (e)=>{ e.preventDefault(); share(); };
     }
 
     betTypeEl.addEventListener("change", updatePointsOptions);
     updatePointsOptions();
-
     ticketBtn.addEventListener("click", drawTicket);
 
-    // 初期状態：シェア不可
+    // 初期：シェア不可
     setShareEnabled();
   </script>
 </body>
