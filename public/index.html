@@ -549,7 +549,7 @@
     function buildPick(type, fieldSize){
       if(type === "win"){
         const a = randInt(1, fieldSize);
-        return { display: `15`, raw: [a], text: `馬番 ${a}`, hint: "単勝：1頭" };
+        return { raw: [a], text: `馬番 ${a}`, hint: "単勝：1頭" };
       }
       if(type === "place"){
         const a = randInt(1, fieldSize);
@@ -636,35 +636,76 @@
       return pick[randInt(0, pick.length - 1)];
     }
 
-    // ====== ここがメイン：馬券“画像”をSVGで生成 ======
-    function esc(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      })[m]);
-    }
-
+    // ====== ★ここがメイン：馬券“画像”をSVGで生成（枠に数字・枠に式別） ======
     function makeTicketSVG({ venue, raceNo, typeLabel, fieldSize, points, picks, alloc, total }){
-      // 票面サイズ（レスポンシブで縮小されます）
       const W = 980, H = 420;
 
-      // 右側に表示する買い目テキスト（票面っぽく整形）
+      const codeMap = {
+        "単勝":"WIN", "複勝":"PLC", "枠連":"WAK", "馬連":"UMR",
+        "ワイド":"WID", "馬単":"UMT", "3連複":"TRI", "3連単":"TRF"
+      };
+      const betCode = codeMap[typeLabel] || "BET";
+
       const lines = picks.map((p, i) => ({
-        text: p.text.replace("馬番 ", "").replace("枠 ", "枠 ").replace(/-/g, " - ").replace(/→/g, " → "),
-        yen: `${alloc[i].toLocaleString()}円`
+        raw: p.raw || [],
+        text: p.text || "",
+        yen: `${alloc[i].toLocaleString()}円`,
       }));
 
-      // 券種縦表示用（2文字ずつ改行して縦の雰囲気）
-      const typeVertical = typeLabel.split("").join("\n");
+      const pad2 = (n) => String(n).padStart(2,"0");
 
-      // 透かし（蹄鉄っぽい丸と薄い文字）
+      const kind = (() => {
+        if (typeLabel === "馬単" || typeLabel === "3連単") return "arrow";
+        return "dash";
+      })();
+
+      function boxesSvg(rawNums, x, y){
+        const boxW = 58, boxH = 58, gap = 14;
+        const stroke = 3;
+
+        const sep = () => {
+          if (rawNums.length === 1) return "";
+          if (kind === "arrow") return "→";
+          return "−";
+        };
+
+        const sepX = (i) => x + (boxW + gap) * i + boxW + 10;
+
+        let out = "";
+
+        for (let i=0; i<rawNums.length; i++){
+          const bx = x + (boxW + gap) * i + (i>0 ? 18*i : 0);
+          out += `
+            <rect x="${bx}" y="${y}" width="${boxW}" height="${boxH}" rx="10"
+                  fill="#fff" stroke="#111" stroke-width="${stroke}"/>
+            <text x="${bx + boxW/2}" y="${y + 40}" font-size="28" font-weight="900"
+                  text-anchor="middle"
+                  font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
+              ${pad2(rawNums[i])}
+            </text>
+          `;
+
+          if (i < rawNums.length - 1){
+            const s = sep();
+            out += `
+              <text x="${sepX(i)}" y="${y + 41}" font-size="30" font-weight="900"
+                    text-anchor="middle"
+                    font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif">
+                ${s}
+              </text>
+            `;
+          }
+        }
+        return out;
+      }
+
       const watermark = `
-        <g opacity="0.10">
+        <g opacity="0.08">
           <circle cx="720" cy="140" r="120" fill="#1a4aa5"/>
           <circle cx="840" cy="260" r="140" fill="#b00020"/>
         </g>
       `;
 
-      // 背景の薄いストライプ
       const stripes = `
         <defs>
           <pattern id="stripes" width="14" height="14" patternUnits="userSpaceOnUse">
@@ -675,10 +716,9 @@
         <rect x="0" y="0" width="${W}" height="${H}" fill="url(#stripes)"/>
       `;
 
-      // QR風
       const qr = `
         <g transform="translate(28,98)">
-          <rect x="0" y="0" width="160" height="160" rx="10" fill="#fff" stroke="#111" opacity="0.85"/>
+          <rect x="0" y="0" width="160" height="160" rx="10" fill="#fff" stroke="#111" opacity="0.9"/>
           ${Array.from({length:10}).map((_,r)=>
             Array.from({length:10}).map((__,c)=>{
               const on = (r*c + r + c) % 3 === 0;
@@ -688,15 +728,14 @@
         </g>
       `;
 
-      // 左の情報欄
       const left = `
         <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif" fill="#111">
-          <text x="30" y="48" font-size="44" font-weight="800">${esc(venue)}</text>
+          <text x="30" y="48" font-size="44" font-weight="900">${venue}</text>
           <text x="205" y="48" font-size="28" font-weight="700">（日）</text>
 
           <rect x="30" y="70" width="110" height="82" rx="10" fill="#111"/>
           <text x="85" y="124" font-size="50" font-weight="900" fill="#fff" text-anchor="middle">${raceNo}</text>
-          <text x="160" y="124" font-size="34" font-weight="800">レース</text>
+          <text x="160" y="124" font-size="34" font-weight="900">レース</text>
 
           ${qr}
 
@@ -704,38 +743,55 @@
         </g>
       `;
 
-      // 中央の券種縦欄
+      const typeVertical = typeLabel.split("").join("\n");
       const center = `
         <g>
-          <rect x="380" y="40" width="120" height="340" fill="#fff" stroke="#111" stroke-width="4"/>
-          <text x="440" y="85" font-size="20" font-weight="800" text-anchor="middle" opacity="0.8">BET</text>
-          <text x="440" y="205" font-size="66" font-weight="900" text-anchor="middle" style="white-space:pre; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif;">${esc(typeVertical)}</text>
-          <text x="440" y="350" font-size="20" font-weight="800" text-anchor="middle" opacity="0.8">BET</text>
+          <rect x="380" y="40" width="120" height="340" fill="#fff" stroke="#111" stroke-width="5"/>
+          <text x="440" y="85" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
+
+          <text x="440" y="210" font-size="66" font-weight="900" text-anchor="middle"
+                style="white-space:pre; font-family: system-ui, -apple-system, 'Noto Sans JP', sans-serif;">
+            ${typeVertical}
+          </text>
+
+          <text x="440" y="350" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
         </g>
       `;
 
-      // 右側：買い目＋金額（票面風）
       const right = `
         <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif" fill="#111">
           ${lines.map((ln, idx)=>{
-            const y = 120 + idx*70;
+            const y = 92 + idx*86;
+            const buyX = 545;
+
+            let raw = ln.raw;
+            if (!raw || raw.length === 0){
+              const nums = (ln.text.match(/\d+/g) || []).map(n=>Number(n)).slice(0,3);
+              raw = nums;
+            }
+
             return `
               <g>
-                <rect x="540" y="${y-44}" width="92" height="64" fill="#fff" stroke="#111" stroke-width="3"/>
-                <text x="586" y="${y-2}" font-size="34" font-weight="900" text-anchor="middle">${esc(String(ln.text).split(/[ -→]/)[0] || "")}</text>
+                ${boxesSvg(raw, buyX, y)}
 
-                <text x="650" y="${y}" font-size="44" font-weight="900">${esc(ln.text)}</text>
-                <text x="650" y="${y+40}" font-size="34" font-weight="900">${esc(ln.yen)}</text>
+                <rect x="820" y="${y}" width="140" height="58" rx="10"
+                      fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="890" y="${y+40}" font-size="26" font-weight="900" text-anchor="middle"
+                      font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
+                  × ${ln.yen}
+                </text>
               </g>
             `;
           }).join("")}
 
-          <text x="540" y="388" font-size="26" font-weight="800">合計</text>
-          <text x="640" y="388" font-size="44" font-weight="900">${total.toLocaleString()}円</text>
+          <text x="545" y="388" font-size="26" font-weight="900">合計</text>
+          <text x="630" y="388" font-size="46" font-weight="900"
+                font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
+            ${total.toLocaleString()}円
+          </text>
         </g>
       `;
 
-      // 票面フレーム
       const frame = `<rect x="6" y="6" width="${W-12}" height="${H-12}" rx="18" fill="none" stroke="#111" stroke-width="6"/>`;
 
       return `
@@ -788,12 +844,10 @@
 
       const alloc = splitBudget(budget, finalPoints);
 
-      // 票面用の雰囲気パラメータ
       const venue = ["阪神","京都","東京","中山","札幌","函館","新潟","中京","小倉"][randInt(0,8)];
       const raceNo = randInt(1, 12);
       const typeLabel = typeLabels[type] || "馬券";
 
-      // SVG生成して差し込み
       ticketSvgMount.innerHTML = makeTicketSVG({
         venue, raceNo, typeLabel,
         fieldSize, points: finalPoints,
@@ -804,7 +858,6 @@
       ticketAmountEl.textContent = `合計：${budget.toLocaleString()}円`;
       ticketFortuneEl.textContent = fortuneByTotal(budget);
 
-      // シェア用
       const linesText = picks.map((p,i)=>`${p.text.replace("馬番 ","").replace("枠 ","枠 ")}×${alloc[i]}円`).join(" / ");
       lastTicket = { typeLabel, linesText, total: budget };
       setShareEnabled();
@@ -817,7 +870,6 @@
     updatePointsOptions();
     ticketBtn.addEventListener("click", drawTicket);
 
-    // 初期：シェア不可
     setShareEnabled();
   </script>
 </body>
