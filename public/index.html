@@ -406,7 +406,7 @@
   const uniq = (arr) => Array.from(new Set(arr));
 
   // -------------------------
-  // 推しジョッキー（既存API）
+  // 推しジョッキー（API）
   // -------------------------
   const btnPickJockey = document.getElementById("btnPickJockey");
   const btnShareJockey = document.getElementById("btnShareJockey");
@@ -438,13 +438,26 @@
     lastJockey = null;
 
     try{
-      const res = await fetch("/api/get-jockey", { cache: "no-store" });
-      const text = await res.text();
+      // ✅ FIX: 正しいAPIに変更（Vercel Functions: /api/oshi-jockey）
+      const res = await fetch("/api/oshi-jockey", {
+        cache: "no-store",
+        headers: { "accept": "application/json" }
+      });
 
-      let data;
-      try { data = JSON.parse(text); }
-      catch(e){
-        throw new Error("JSON解析に失敗しました。\n" + text.slice(0, 180));
+      // ✅ 404や500でも「JSON解析に失敗」ではなく分かりやすく出す
+      if (!res.ok){
+        const t = await res.text().catch(()=> "");
+        const head = (t || "").slice(0, 220);
+        throw new Error(`取得に失敗しました（HTTP ${res.status}）\n${head}`);
+      }
+
+      // ✅ JSON優先。もし壊れてたら本文を出す
+      let data = null;
+      try{
+        data = await res.json();
+      }catch(e){
+        const t = await res.text().catch(()=> "");
+        throw new Error("JSON解析に失敗しました。\n" + (t || "").slice(0, 220));
       }
 
       if (!data || data.error){
@@ -566,11 +579,6 @@
       .replaceAll("'","&#39;");
   }
 
-  // -------------------------
-  // 票面SVG（文字被り修正版）
-  // - 行間を points に応じて自動調整
-  // - 4点でも最下段「合計」と絶対に重ならない
-  // -------------------------
   function makeTicketSVG(model){
     const W = 980;
     const H = 300;
@@ -587,15 +595,12 @@
     const points = model.points;
     const total = model.total;
 
-    // 券種の縦書き（1文字ずつ）
     const betChars = Array.from(String(betLabel));
     const betCharY0 = 132;
     const betCharGap = 34;
 
-    // ✅ここが修正の肝：右側の買い目行の “縦位置” を点数で可変に
-    // 行が多いほど詰める。最後の行の下端が「合計」領域に入らないようにする。
-    const rowsTop = 74;       // 買い目開始Y
-    const rowsBottom = 210;   // 買い目終了（ここまでに収める）
+    const rowsTop = 74;
+    const rowsBottom = 210;
     const maxGap = 54;
     const minGap = 42;
     const rowGapRaw = (points > 1) ? Math.floor((rowsBottom - rowsTop) / (points - 1)) : 0;
@@ -609,7 +614,6 @@
 
     const amountTextX = 922;
 
-    // ✅合計は下に固定（買い目と被らないY）
     const totalLabelY = 286;
     const totalAmountY = 288;
 
