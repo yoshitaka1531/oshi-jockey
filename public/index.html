@@ -207,10 +207,29 @@
       background:rgba(255,255,255,.45);
     }
     .footer h2{
-      margin:0 0 8px;
+      margin:0 0 10px;
       font-family:"Yuji Syuku","Yuji Boku",serif;
       font-size:18px;
       letter-spacing:.08em;
+    }
+    .siteItem{
+      padding:10px 10px;
+      border-radius:12px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(203,189,159,.55);
+      margin-bottom:10px;
+    }
+    .siteName{
+      margin:0 0 4px;
+      font-family:"Yuji Syuku","Yuji Boku",serif;
+      font-size:16px;
+      letter-spacing:.06em;
+    }
+    .siteDesc{
+      margin:0 0 6px;
+      font-size:12px;
+      color:#444;
+      line-height:1.5;
     }
     .footlink{ word-break:break-all; }
     .tinyNote{ font-size:12px; color:#666; margin-top:10px; line-height:1.5; }
@@ -308,9 +327,22 @@
 
     <section class="footer">
       <h2>おすすめサイト</h2>
-      <a class="footlink" href="https://c-lemaire.co.jp/?srsltid=AfmBOop6TBukVoj2Y2Cs9SYRuY_8TsMUwtuXH3sUJPnIAXSxN-VKYrgq" target="_blank" rel="noopener noreferrer">
-        https://c-lemaire.co.jp/
-      </a>
+
+      <div class="siteItem">
+        <div class="siteName">Christophe Lemaire</div>
+        <div class="siteDesc">公式サイト</div>
+        <a class="footlink" href="https://c-lemaire.co.jp/?srsltid=AfmBOop6TBukVoj2Y2Cs9SYRuY_8TsMUwtuXH3sUJPnIAXSxN-VKYrgq" target="_blank" rel="noopener noreferrer">
+          https://c-lemaire.co.jp/
+        </a>
+      </div>
+
+      <div class="siteItem">
+        <div class="siteName">馬券師の記録(ケイバオゼキ)</div>
+        <div class="siteDesc">最強馬券師｢ケイバオゼキ｣魂のロジカル馬券勝負</div>
+        <a class="footlink" href="https://dashboard.vercel.app" target="_blank" rel="noopener noreferrer">
+          https://dashboard.vercel.app
+        </a>
+      </div>
     </section>
 
   </div>
@@ -463,21 +495,14 @@
       return pickOne(list);
     }
 
-    // ====== ここが改修ポイント：縦書き（枠内固定） ======
     function splitTypeForVertical(typeLabel){
-      // 3連単 / 3連複 の「3」と「連」を分けると本物感が出る
-      // 例: "3連単" -> ["3","連","単"]
-      //     "単勝"   -> ["単","勝"]
-      //     "ワイド" -> ["ワ","イ","ド"]
       const s = String(typeLabel);
       if(s.startsWith("3連") && s.length === 3){
         return [s[0], s[1], s[2]];
       }
-      // カタカナは1文字ずつ
       if(/[ァ-ヶー]/.test(s)){
         return s.split("");
       }
-      // 漢字も1文字ずつ
       return s.split("");
     }
 
@@ -545,22 +570,19 @@
         </g>
       `;
 
-      // ====== 縦枠（式別）を“枠内に収める” ======
       const chars = splitTypeForVertical(typeLabel);
-      const maxLines = 4; // 最大4行まで（ほぼ収まる）
+      const maxLines = 4;
       const safeChars = chars.slice(0, maxLines);
 
       const rectX = 386, rectY = 44, rectW = 132, rectH = 338;
-      const innerTop = rectY + 78;     // 上のコード表示(22px)の下あたり
-      const innerBottom = rectY + rectH - 58; // 下のコード表示の上あたり
+      const innerTop = rectY + 78;
+      const innerBottom = rectY + rectH - 58;
       const innerH = innerBottom - innerTop;
 
-      // 行数に応じてフォントサイズと行間を自動調整して枠内固定
       const lines = safeChars.length;
       const fontSize = Math.floor(Math.min(62, Math.max(34, innerH / (lines + 0.2))));
       const lineStep = Math.floor(innerH / lines);
 
-      // それぞれの文字を1行ずつ配置（white-space依存をやめて確実に枠内に）
       let vTexts = "";
       for(let i=0;i<lines;i++){
         const y = innerTop + Math.floor(lineStep*(i+0.65));
@@ -622,8 +644,7 @@
       }));
 
       const buyX = 560;
-      const moneyX = 898;
-
+      const moneyX = 1008; // 右寄せ基準（枠なし）
       const right = `
         <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111">
           ${linesData.map((ln, idx)=>{
@@ -631,9 +652,7 @@
             return `
               <g>
                 ${renderPickBoxes(ln.raw, buyX, y)}
-                <rect x="${moneyX}" y="${y}" width="112" height="54" rx="10"
-                      fill="#fff" stroke="#111" stroke-width="3"/>
-                <text x="${moneyX+56}" y="${y+36}" font-size="18" font-weight="900" text-anchor="middle"
+                <text x="${moneyX}" y="${y+38}" font-size="18" font-weight="900" text-anchor="end"
                       font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
                   × ${ln.yen.toLocaleString()}円
                 </text>
@@ -650,16 +669,10 @@
       `;
 
       const frame = `<rect x="8" y="8" width="${W-16}" height="${H-16}" rx="18" fill="none" stroke="#111" stroke-width="6"/>`;
-      const topLabel = `
-        <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111" opacity="0.85">
-          <text x="28" y="26" font-size="14" font-weight="700">勝馬投票券（イメージ）</text>
-        </g>
-      `;
 
       return `
         <svg class="ticketSvg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="馬券">
           ${bg}
-          ${topLabel}
           ${left}
           ${center}
           ${right}
@@ -712,7 +725,7 @@
       ].filter(Boolean).join("\n");
     }
 
-    const VENUES2 = VENUES; // alias
+    const VENUES2 = VENUES;
 
     bakenBtn.addEventListener("click", async ()=>{
       ticketErr.style.display = "none";
