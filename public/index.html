@@ -5,103 +5,105 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>今日の推しジョッキー</title>
 
-  <!-- 筆文字フォント -->
+  <!-- 筆字フォント（和風） -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Yuji+Boku&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --ink:#171717;
+      --ink:#1a1a1a;
       --paper:#fbf7ee;
-      --paper2:#f2ead7;
+      --paper2:#f3ead6;
       --line:#d9cdb5;
       --seal:#b00020;
       --indigo:#1a4aa5;
-      --shadow: rgba(0,0,0,.08);
-      --card: rgba(255,255,255,.60);
+      --card: rgba(255,255,255,.55);
     }
-    *{box-sizing:border-box}
+
+    *{ box-sizing:border-box; }
+
     body{
       margin:0;
-      padding:18px;
+      padding:20px 14px 28px;
       color:var(--ink);
       background:
-        radial-gradient(1100px 900px at 15% 10%, rgba(0,0,0,.05), transparent 60%),
-        radial-gradient(900px 800px at 85% 0%, rgba(0,0,0,.035), transparent 55%),
+        radial-gradient(1200px 800px at 20% 10%, rgba(0,0,0,.04), transparent 60%),
+        radial-gradient(900px 700px at 80% 0%, rgba(0,0,0,.03), transparent 55%),
         linear-gradient(180deg, var(--paper), var(--paper2));
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
     }
-    body::before{
+
+    /* 和紙っぽいノイズ */
+    body:before{
       content:"";
       position:fixed;
       inset:0;
       pointer-events:none;
       background-image:
-        repeating-linear-gradient(0deg, rgba(0,0,0,.016) 0, rgba(0,0,0,.016) 1px, transparent 1px, transparent 4px),
-        repeating-linear-gradient(90deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 1px, transparent 1px, transparent 5px);
+        repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0, rgba(0,0,0,.015) 1px, transparent 1px, transparent 4px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,.01) 0, rgba(0,0,0,.01) 1px, transparent 1px, transparent 5px);
       mix-blend-mode:multiply;
-      opacity:.32;
+      opacity:.35;
     }
 
-    .wrap{max-width:980px;margin:0 auto}
-    .grid{
-      display:grid;
-      gap:14px;
-      grid-template-columns: 1fr;
+    .wrap{ max-width:820px; margin:0 auto; position:relative; }
+    .title{
+      font-family:"Yuji Syuku","Yuji Boku",serif;
+      font-size:40px;
+      letter-spacing:.08em;
+      margin:0 0 8px;
+      line-height:1.1;
     }
-    @media (min-width:860px){
-      .grid{ grid-template-columns: 1fr 1fr; }
+    .subtitle{
+      margin:0 0 18px;
+      color:#444;
+      font-size:13px;
     }
 
-    .shrine{
+    .card{
       border:1px solid var(--line);
+      background:var(--card);
       border-radius:18px;
-      background:rgba(255,255,255,.55);
-      box-shadow: 0 12px 32px var(--shadow);
       padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.06);
       position:relative;
       overflow:hidden;
+      margin-bottom:14px;
     }
-    .seal{
+
+    .stamp{
       position:absolute;
       right:16px;
       top:14px;
-      width:64px;height:64px;
-      border:2px solid rgba(176,0,32,.65);
-      color:rgba(176,0,32,.8);
-      border-radius:10px;
+      width:64px;
+      height:64px;
+      border:3px solid rgba(176,0,32,.55);
+      color:rgba(176,0,32,.75);
       display:grid;
       place-items:center;
       font-family:"Yuji Syuku","Yuji Boku",serif;
-      font-size:26px;
+      font-size:28px;
       transform:rotate(9deg);
-      background:rgba(255,255,255,.18);
-      user-select:none;
+      border-radius:10px;
+      background:rgba(255,255,255,.25);
     }
 
-    .title{
+    .sectionTitle{
       font-family:"Yuji Syuku","Yuji Boku",serif;
-      font-size:34px;
-      letter-spacing:.08em;
-      margin:0;
-      line-height:1.15;
-      padding-right:78px;
+      font-size:28px;
+      letter-spacing:.10em;
+      margin:0 0 8px;
     }
-    .hint{
-      margin:8px 0 0;
+
+    .desc{
+      margin:0 0 12px;
       color:#444;
-      font-size:12px;
+      font-size:14px;
       line-height:1.6;
     }
 
-    .btnrow{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:14px;
-    }
+    .btnrow{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:10px 0 0; }
     .btn{
       border:1px solid #cbbd9f;
       background:linear-gradient(180deg, #fffdf7, #f3ead6);
@@ -109,83 +111,57 @@
       border-radius:14px;
       padding:12px 18px;
       cursor:pointer;
-      box-shadow: 0 6px 16px var(--shadow);
-      transition: transform .08s ease, box-shadow .08s ease, opacity .08s ease;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      transition:transform .08s ease, box-shadow .08s ease;
       font-size:16px;
+      min-width: 148px;
     }
-    .btn:active{transform:translateY(1px);box-shadow: 0 4px 12px var(--shadow)}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
+    .btn:active{ transform:translateY(1px); box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .btn[disabled]{ opacity:.6; cursor:not-allowed; }
+
     .btn.main{
       font-family:"Yuji Syuku","Yuji Boku",serif;
       font-size:22px;
       letter-spacing:.18em;
       padding:14px 22px;
       border-color:#b9a27a;
+      min-width: 180px;
     }
     .btn.share{
       font-family:"Yuji Syuku","Yuji Boku",serif;
       letter-spacing:.08em;
+      min-width: 120px;
     }
 
-    /* 推しジョッキー結果（縦書き） */
-    .omikuji{
-      margin-top:16px;
-      display:none;
+    .resultBox{
+      margin-top:14px;
+      padding:16px;
       border:1px solid var(--line);
       border-radius:18px;
-      background:var(--card);
-      padding:18px;
-      position:relative;
-      overflow:hidden;
+      background:rgba(255,255,255,.62);
     }
-    .omikuji::before{
-      content:"";
-      position:absolute;
-      left:16px; right:16px; top:10px;
-      height:1px;
-      background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent);
-      opacity:.75;
-    }
-    .omikujiInner{
-      display:flex;
-      gap:16px;
-      align-items:stretch;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .vertical{
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
+
+    .name{
       font-family:"Yuji Syuku","Yuji Boku",serif;
-      font-size:28px;
-      letter-spacing:.18em;
-      line-height:1.25;
-      padding:10px 6px;
-      min-height:220px;
-      border-right:1px dashed rgba(0,0,0,.12);
+      font-size:30px;
+      letter-spacing:.10em;
+      margin:0 0 10px;
     }
-    .actions{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      justify-content:flex-start;
-      min-width:240px;
-      flex:1;
-      padding-top:6px;
-    }
-    .link{
-      display:inline-block;
+
+    a{
       color:var(--indigo);
       text-decoration:underline;
       text-underline-offset:3px;
-      word-break:break-all;
-      font-size:15px;
     }
-    .small{
-      color:#444;
+    a:hover{ opacity:.85; }
+
+    .metaLine{
       font-size:12px;
-      line-height:1.6;
+      color:#555;
+      margin-top:8px;
+      display:none; /* 候補数表示は出さない */
     }
+
     .err{
       margin-top:10px;
       white-space:pre-wrap;
@@ -194,81 +170,78 @@
       display:none;
     }
 
-    /* 馬券おみくじ UI */
-    .sectionTitle{
-      font-family:"Yuji Syuku","Yuji Boku",serif;
-      font-size:22px;
-      letter-spacing:.10em;
-      margin:0 0 10px;
-      padding-right:78px;
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
     }
-    .formRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-      margin-top:12px;
+    @media (max-width:680px){
+      .grid{ grid-template-columns:1fr; }
+      .btn{ width:100%; }
+      .btn.main{ width:100%; }
     }
+
     label{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      font-size:12px;
+      font-size:13px;
       color:#333;
-      min-width:180px;
+      display:block;
+      margin:4px 0 6px;
     }
+
     select, input{
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.82);
-      font-size:14px;
+      width:100%;
+      border:1px solid #cbbd9f;
+      background:rgba(255,255,255,.7);
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:18px;
       outline:none;
     }
-    input{width:140px}
 
-    /* ★馬券“画像”枠（SVGを入れる） */
     .ticketWrap{
-      margin-top:14px;
-      display:none;
+      margin-top:12px;
       border:1px solid var(--line);
       border-radius:16px;
-      background:rgba(255,255,255,.66);
+      background:rgba(255,255,255,.55);
+      padding:12px;
       overflow:hidden;
-      box-shadow: 0 10px 26px var(--shadow);
     }
+
     .ticketSvg{
       width:100%;
       height:auto;
       display:block;
-      background:#fff;
     }
-    .ticketBottomRow{
-      padding:12px 14px;
+
+    .ticketFooter{
       display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
       justify-content:space-between;
-      background:rgba(255,255,255,.45);
-      border-top:1px dashed rgba(0,0,0,.10);
+      align-items:flex-end;
+      gap:10px;
+      margin-top:10px;
     }
-    .yen{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:14px;
-      letter-spacing:.06em;
-    }
-    .stamp{
-      display:inline-grid;
-      place-items:center;
-      width:54px;height:54px;
-      border-radius:10px;
-      border:2px solid rgba(176,0,32,.65);
-      color:rgba(176,0,32,.8);
+
+    .omikujiSum{
       font-family:"Yuji Syuku","Yuji Boku",serif;
-      transform:rotate(-8deg);
-      background:rgba(255,255,255,.20);
-      user-select:none;
+      font-size:22px;
+      letter-spacing:.08em;
+      margin:0;
+    }
+
+    .fortuneStamp{
+      width:70px;
+      height:70px;
+      border:3px solid rgba(176,0,32,.55);
+      color:rgba(176,0,32,.75);
+      display:grid;
+      place-items:center;
+      font-family:"Yuji Syuku","Yuji Boku",serif;
+      font-size:22px;
+      transform:rotate(9deg);
+      border-radius:12px;
+      background:rgba(255,255,255,.25);
+      flex:0 0 auto;
     }
 
     .footer{
@@ -285,385 +258,328 @@
       letter-spacing:.08em;
     }
     .footlink{
-      color:var(--indigo);
-      text-decoration:underline;
-      text-underline-offset:3px;
       word-break:break-all;
-      font-size:13px;
     }
-
-    @media (max-width:520px){
-      .title{font-size:32px}
-      .vertical{font-size:24px; min-height:190px;}
-      .actions{min-width:unset}
-      label{min-width:unset}
+    .tinyNote{
+      font-size:12px;
+      color:#666;
+      margin-top:10px;
+      line-height:1.5;
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="grid">
 
-      <!-- 推しジョッキー（カードで囲い） -->
-      <div class="shrine">
-        <div class="seal">推</div>
+    <!-- 今日の推しジョッキー（青枠部分を“同じコンテンツとして囲う”） -->
+    <section class="card">
+      <div class="stamp">推</div>
+      <h1 class="title">今日の推しジョッキー</h1>
+      <p class="subtitle">神社のおみくじ風に、今日の推しを授かります。</p>
 
-        <h1 class="title">今日の推しジョッキー</h1>
-        <p class="hint">神社のおみくじ風に、今日の推しを授かります。</p>
+      <div class="btnrow">
+        <button id="drawBtn" class="btn main">勝負！</button>
+        <button id="shareBtn" class="btn share" disabled>シェア</button>
+      </div>
 
-        <div class="btnrow">
-          <button id="drawBtn" class="btn main" type="button">勝負！</button>
-          <button id="shareBtn" class="btn share" type="button" disabled>シェア</button>
+      <div id="jockeyBox" class="resultBox" style="display:none;">
+        <div id="jockeyName" class="name"></div>
+        <a id="jockeyLink" href="#" target="_blank" rel="noopener noreferrer">プロフィールを見る</a>
+        <div id="jockeyMeta" class="metaLine"></div>
+      </div>
+
+      <pre id="jockeyErr" class="err"></pre>
+    </section>
+
+    <!-- 馬券おみくじ -->
+    <section class="card">
+      <div class="stamp">券</div>
+      <h2 class="sectionTitle">馬券おみくじ</h2>
+      <p class="desc">
+        種類・頭数・点数・合計金額を選んで、「このレースのオススメ馬券」を引きます（ランダム）。
+      </p>
+
+      <div class="grid">
+        <div>
+          <label for="betType">勝馬投票券</label>
+          <select id="betType">
+            <option>単勝</option>
+            <option>複勝</option>
+            <option>枠連</option>
+            <option>馬連</option>
+            <option>ワイド</option>
+            <option>馬単</option>
+            <option>3連複</option>
+            <option>3連単</option>
+          </select>
         </div>
 
-        <div class="omikuji" id="result">
-          <div class="omikujiInner">
-            <div class="vertical" id="name">（表示）</div>
+        <div>
+          <label for="fieldSize">レース頭数（2〜18）</label>
+          <input id="fieldSize" type="number" min="2" max="18" value="12" />
+        </div>
 
-            <div class="actions">
-              <a id="profileLink" class="link" href="#" target="_blank" rel="noopener noreferrer">プロフィールを見る</a>
-              <div class="small">
-                ※リンク先はUMAJOの個別プロフィールです。<br>
-                ※開けない場合は時間をおいて再度お試しください。
-              </div>
+        <div>
+          <label for="points">点数</label>
+          <select id="points">
+            <option value="1">1点</option>
+            <option value="3">3点</option>
+            <option value="5">5点</option>
+          </select>
+        </div>
 
-              <div class="err" id="err"></div>
-            </div>
-          </div>
+        <div>
+          <label for="budget">合計金額（円）</label>
+          <input id="budget" type="number" min="100" step="100" value="1000" />
         </div>
       </div>
 
-      <!-- 馬券おみくじ -->
-      <div class="shrine">
-        <div class="seal">券</div>
-
-        <h2 class="sectionTitle">馬券おみくじ</h2>
-        <div class="small">種類・頭数・点数・合計金額を選んで、「このレースのオススメ馬券」を引きます（ランダム）。</div>
-
-        <div class="formRow">
-          <label>
-            勝馬投票券
-            <select id="betType">
-              <option value="win">単勝</option>
-              <option value="place">複勝</option>
-              <option value="wakuren">枠連</option>
-              <option value="umaren">馬連</option>
-              <option value="wide">ワイド</option>
-              <option value="umatan">馬単</option>
-              <option value="trio">3連複</option>
-              <option value="trifecta">3連単</option>
-            </select>
-          </label>
-
-          <label>
-            レース頭数（2〜18）
-            <input id="fieldSize" type="number" min="2" max="18" value="12" />
-          </label>
-
-          <label>
-            点数
-            <select id="ticketPoints">
-              <option value="1">1点</option>
-              <option value="3">3点</option>
-              <option value="5">5点</option>
-            </select>
-          </label>
-
-          <label>
-            合計金額（円）
-            <input id="budget" type="number" min="100" step="100" value="1000" />
-          </label>
-
-          <button id="ticketBtn" class="btn main" type="button">馬券おみくじ</button>
-        </div>
-
-        <!-- ★ここが“馬券画像”になります -->
-        <div class="ticketWrap" id="ticketWrap">
-          <div id="ticketSvgMount"></div>
-          <div class="ticketBottomRow">
-            <div class="yen" id="ticketAmount">合計：1000円</div>
-            <div class="stamp" id="ticketFortune">吉</div>
-          </div>
-        </div>
-
-        <a id="ticketShareLink" class="link" href="#" style="display:none;margin-top:10px;">この馬券をシェア</a>
-        <div class="err" id="ticketErr"></div>
+      <div class="btnrow" style="margin-top:14px;">
+        <button id="bakenBtn" class="btn main">馬券おみくじ</button>
       </div>
 
-    </div>
+      <div id="ticketArea" class="ticketWrap" style="display:none;">
+        <div id="ticketSvgHolder"></div>
 
-    <div class="footer">
+        <div class="ticketFooter">
+          <p class="omikujiSum" id="ticketSumText">合計：0円</p>
+          <div class="fortuneStamp" id="fortuneStamp">吉</div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <a id="shareTicketLink" href="#" role="button">この馬券をシェア</a>
+        </div>
+
+        <pre id="ticketErr" class="err"></pre>
+      </div>
+
+      <div class="tinyNote">
+        ※UMAJOや外部サイトの構造変更・通信状況により、取得に時間がかかる場合があります。<br>
+        ※馬券おみくじは娯楽用のランダム生成です。
+      </div>
+    </section>
+
+    <!-- おすすめサイト -->
+    <section class="footer">
       <h2>おすすめサイト</h2>
-      <a class="footlink"
-         href="https://c-lemaire.co.jp/?srsltid=AfmBOop6TBukVoj2Y2Cs9SYRuY_8TsMUwtuXH3sUJPnIAXSxN-VKYrgq"
-         target="_blank" rel="noopener noreferrer">
+      <a class="footlink" href="https://c-lemaire.co.jp/?srsltid=AfmBOop6TBukVoj2Y2Cs9SYRuY_8TsMUwtuXH3sUJPnIAXSxN-VKYrgq" target="_blank" rel="noopener noreferrer">
         https://c-lemaire.co.jp/
       </a>
-    </div>
+    </section>
+
   </div>
 
   <script>
-    // ====== 推しジョッキー ======
-    const drawBtn  = document.getElementById("drawBtn");
+    // ===============================
+    // Utilities
+    // ===============================
+    function clampInt(v, min, max){
+      const n = Number(v);
+      if(!Number.isFinite(n)) return min;
+      return Math.min(max, Math.max(min, Math.trunc(n)));
+    }
+
+    function pickOne(arr){
+      return arr[Math.floor(Math.random()*arr.length)];
+    }
+
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ===============================
+    // 今日の推しジョッキー（API呼び出し）
+    // ===============================
+    const drawBtn = document.getElementById("drawBtn");
     const shareBtn = document.getElementById("shareBtn");
-    const resultEl = document.getElementById("result");
-    const nameEl   = document.getElementById("name");
-    const linkEl   = document.getElementById("profileLink");
-    const errEl    = document.getElementById("err");
+    const jockeyBox = document.getElementById("jockeyBox");
+    const jockeyNameEl = document.getElementById("jockeyName");
+    const jockeyLinkEl = document.getElementById("jockeyLink");
+    const jockeyErrEl = document.getElementById("jockeyErr");
+    const jockeyMetaEl = document.getElementById("jockeyMeta");
 
-    let lastPicked = null;
-    let lastTicket = null;
+    let latestJockey = null;
 
-    function setShareEnabled(){
-      shareBtn.disabled = !(lastPicked || lastTicket);
-    }
+    async function fetchJockey(){
+      jockeyErrEl.style.display = "none";
+      jockeyErrEl.textContent = "";
+      shareBtn.disabled = true;
 
-    function showError(msg){
-      resultEl.style.display = "block";
-      errEl.style.display = "block";
-      errEl.textContent = msg;
-    }
-    function clearError(){
-      errEl.style.display = "none";
-      errEl.textContent = "";
-    }
-
-    async function draw(){
       drawBtn.disabled = true;
-      drawBtn.textContent = "神託中…";
-      clearError();
+      drawBtn.textContent = "祈願中…";
 
       try{
         const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
         const text = await res.text();
-        let data;
-        try{ data = JSON.parse(text); }
-        catch{ throw new Error("APIの応答がJSONではありませんでした。時間をおいて再度お試しください。"); }
 
-        if(!res.ok || data.error){
-          throw new Error(data.message || `API error: ${res.status}`);
+        let data;
+        try{
+          data = JSON.parse(text);
+        }catch(e){
+          throw new Error("APIがJSONを返しませんでした。\n" + text.slice(0,200));
         }
 
-        const picked = data.picked || {};
-        const name = picked.name || "(ジョッキー)";
-        const profileUrl = picked.profileUrl;
-        if(!profileUrl) throw new Error("APIの返却に profileUrl がありません。");
+        if(!res.ok || data.error){
+          throw new Error(data.message || "取得に失敗しました。");
+        }
 
-        lastPicked = { name, profileUrl };
-        nameEl.textContent = name;
+        latestJockey = data.picked;
 
-        linkEl.href = profileUrl;
-        linkEl.target = "_blank";
-        linkEl.rel = "noopener noreferrer";
+        jockeyNameEl.textContent = latestJockey.name || "(ジョッキー)";
+        jockeyLinkEl.href = latestJockey.profileUrl || "https://umajo.jra.jp/jockey/";
+        jockeyBox.style.display = "block";
 
-        resultEl.style.display = "block";
-        setShareEnabled();
-
-      }catch(e){
-        console.error(e);
-        lastPicked = null;
-        setShareEnabled();
-        showError("取得に失敗しました。\n\n" + String(e.message || e));
+        jockeyMetaEl.textContent = data.totalCandidates ? `候補数：${data.totalCandidates}` : "";
+        shareBtn.disabled = false;
+      }catch(err){
+        jockeyErrEl.style.display = "block";
+        jockeyErrEl.textContent = String(err && err.message ? err.message : err);
       }finally{
         drawBtn.disabled = false;
         drawBtn.textContent = "勝負！";
       }
     }
 
-    function buildShareText(){
-      const parts = [];
-      let url = location.href;
-
-      if(lastPicked){
-        parts.push(`今日の推しジョッキーは「${lastPicked.name}」！`);
-        url = lastPicked.profileUrl || url;
-      }
-      if(lastTicket){
-        parts.push(`馬券おみくじ：${lastTicket.typeLabel} / ${lastTicket.linesText}（合計${lastTicket.total}円）`);
-      }
-      return { text: parts.join("\n"), url };
+    function shareTextBase(){
+      const baseUrl = location.href;
+      const jockeyText = latestJockey ? `今日の推しジョッキー：${latestJockey.name}` : "今日の推しジョッキー：未取得";
+      return `${jockeyText}\n${baseUrl}\n#今日の推しジョッキー`;
     }
 
-    async function share(){
-      if(!(lastPicked || lastTicket)) return;
-      const { text, url } = buildShareText();
-
-      if(navigator.share){
-        try{
-          await navigator.share({ title:"今日の推しジョッキー", text, url });
-          return;
-        }catch(_){}
+    async function shareCommon(text){
+      try{
+        if(navigator.share){
+          await navigator.share({ text });
+          return true;
+        }
+      }catch(e){}
+      try{
+        await navigator.clipboard.writeText(text);
+        alert("シェア文言をコピーしました。");
+        return true;
+      }catch(e){
+        prompt("コピーしてシェアしてください：", text);
+        return true;
       }
-      const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-      window.open(xUrl, "_blank", "noopener,noreferrer");
     }
 
-    drawBtn.addEventListener("click", draw);
-    shareBtn.addEventListener("click", share);
+    drawBtn.addEventListener("click", fetchJockey);
+    shareBtn.addEventListener("click", async ()=>{
+      await shareCommon(shareTextBase());
+    });
 
-    // ====== 馬券おみくじ（A→C→B） ======
+    // ===============================
+    // 馬券おみくじ（フロントのみ）
+    // ===============================
     const betTypeEl = document.getElementById("betType");
     const fieldSizeEl = document.getElementById("fieldSize");
-    const ticketBtn = document.getElementById("ticketBtn");
-    const pointsEl = document.getElementById("ticketPoints");
+    const pointsEl = document.getElementById("points");
     const budgetEl = document.getElementById("budget");
+    const bakenBtn = document.getElementById("bakenBtn");
+    const ticketArea = document.getElementById("ticketArea");
+    const ticketSvgHolder = document.getElementById("ticketSvgHolder");
+    const ticketSumText = document.getElementById("ticketSumText");
+    const fortuneStamp = document.getElementById("fortuneStamp");
+    const shareTicketLink = document.getElementById("shareTicketLink");
+    const ticketErr = document.getElementById("ticketErr");
 
-    const ticketWrapEl = document.getElementById("ticketWrap");
-    const ticketSvgMount = document.getElementById("ticketSvgMount");
-    const ticketAmountEl = document.getElementById("ticketAmount");
-    const ticketFortuneEl = document.getElementById("ticketFortune");
-    const ticketErrEl = document.getElementById("ticketErr");
-    const ticketShareLinkEl = document.getElementById("ticketShareLink");
+    let latestTicket = null;
 
-    const typeLabels = {
-      win: "単勝",
-      place: "複勝",
-      wakuren: "枠連",
-      umaren: "馬連",
-      wide: "ワイド",
-      umatan: "馬単",
-      trio: "3連複",
-      trifecta: "3連単",
-    };
+    const VENUES = ["東京","中山","京都","阪神","中京","札幌","函館","福島","新潟","小倉"];
 
-    function randInt(min, max){
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    function sampleUniqueNumbers(count, min, max){
-      const set = new Set();
-      while(set.size < count){
-        set.add(randInt(min, max));
-      }
-      return [...set];
-    }
-    function sortAsc(arr){ return [...arr].sort((a,b)=>a-b); }
-
-    function frameOfHorse(horseNo, fieldSize){
-      const frames = 8;
-      const idx = Math.floor((horseNo - 1) * frames / fieldSize) + 1;
-      return Math.min(frames, Math.max(1, idx));
+    function uniqueNums(count, max){
+      const arr = [];
+      for(let i=1;i<=max;i++) arr.push(i);
+      return shuffle(arr).slice(0, count);
     }
 
-    function buildPick(type, fieldSize){
-      if(type === "win"){
-        const a = randInt(1, fieldSize);
-        return { raw: [a], text: `馬番 ${a}`, hint: "単勝：1頭" };
+    function makePick(typeLabel, fieldSize){
+      let raw = [];
+      if(typeLabel === "単勝" || typeLabel === "複勝"){
+        raw = uniqueNums(1, fieldSize);
+      }else if(typeLabel === "枠連" || typeLabel === "馬連" || typeLabel === "ワイド"){
+        raw = uniqueNums(2, fieldSize).sort((a,b)=>a-b);
+      }else if(typeLabel === "馬単"){
+        raw = uniqueNums(2, fieldSize); // 順序あり
+      }else if(typeLabel === "3連複"){
+        raw = uniqueNums(3, fieldSize).sort((a,b)=>a-b);
+      }else if(typeLabel === "3連単"){
+        raw = uniqueNums(3, fieldSize); // 順序あり
+      }else{
+        raw = uniqueNums(1, fieldSize);
       }
-      if(type === "place"){
-        const a = randInt(1, fieldSize);
-        return { raw: [a], text: `馬番 ${a}`, hint: "複勝：1頭" };
-      }
-      if(type === "umaren"){
-        const [a,b] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
-        return { raw: [a,b], text: `馬番 ${a}-${b}`, hint: "馬連：2頭（順不同）" };
-      }
-      if(type === "wide"){
-        const [a,b] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
-        return { raw: [a,b], text: `馬番 ${a}-${b}`, hint: "ワイド：2頭（順不同）" };
-      }
-      if(type === "umatan"){
-        const [a,b] = sampleUniqueNumbers(2, 1, fieldSize);
-        return { raw: [a,b], text: `馬番 ${a}→${b}`, hint: "馬単：2頭（順序あり）" };
-      }
-      if(type === "trio"){
-        const [a,b,c] = sortAsc(sampleUniqueNumbers(3, 1, fieldSize));
-        return { raw: [a,b,c], text: `馬番 ${a}-${b}-${c}`, hint: "3連複：3頭（順不同）" };
-      }
-      if(type === "trifecta"){
-        const [a,b,c] = sampleUniqueNumbers(3, 1, fieldSize);
-        return { raw: [a,b,c], text: `馬番 ${a}→${b}→${c}`, hint: "3連単：3頭（順序あり）" };
-      }
-      if(type === "wakuren"){
-        const [h1,h2] = sortAsc(sampleUniqueNumbers(2, 1, fieldSize));
-        const f1 = frameOfHorse(h1, fieldSize);
-        const f2 = frameOfHorse(h2, fieldSize);
-        const [a,b] = sortAsc([f1,f2]);
-        return { raw: [a,b], text: `枠 ${a}-${b}`, hint: "枠連：2枠（順不同）" };
-      }
-      return { raw: [], text: "-", hint: "" };
+
+      const sep = (typeLabel === "馬単" || typeLabel === "3連単") ? "→" : "−";
+      const text = raw.map(n => String(n).padStart(2,"0")).join(sep);
+      return { raw, text };
     }
 
-    function normalizePick(type, text){
-      return `${type}:${text}`.replace(/\s+/g,"").trim();
-    }
+    function allocateBudget(total, points){
+      const unit = 100;
+      const t = Math.max(unit, Math.floor(total/unit)*unit);
+      const p = Math.max(1, points);
 
-    function showTicketError(msg){
-      ticketErrEl.style.display = "block";
-      ticketErrEl.textContent = msg;
-    }
-    function clearTicketError(){
-      ticketErrEl.style.display = "none";
-      ticketErrEl.textContent = "";
-    }
-
-    function updatePointsOptions(){
-      const type = betTypeEl.value;
-      const fixed1 = (type === "win" || type === "place");
-      const current = pointsEl.value;
-
-      pointsEl.innerHTML = "";
-      pointsEl.appendChild(new Option("1点", "1"));
-      if(!fixed1) pointsEl.appendChild(new Option("3点", "3"));
-      if(!fixed1) pointsEl.appendChild(new Option("5点", "5"));
-
-      const values = [...pointsEl.options].map(o=>o.value);
-      pointsEl.value = values.includes(current) ? current : "1";
-      pointsEl.disabled = fixed1;
-    }
-
-    function splitBudget(total, points){
-      const base = Math.floor(total / points / 100) * 100;
-      let used = base * points;
-      let rem = total - used;
-
-      const arr = new Array(points).fill(base);
+      const base = Math.floor(t/p/unit)*unit;
+      const alloc = new Array(p).fill(base);
+      let rem = t - base*p;
       let i = 0;
-      while(rem >= 100 && i < arr.length){
-        arr[i] += 100;
-        rem -= 100;
-        i++;
+      while(rem > 0){
+        alloc[i] += unit;
+        rem -= unit;
+        i = (i+1) % p;
       }
-      if(rem > 0) arr[arr.length - 1] += rem;
-      return arr;
+      return { total: t, alloc };
     }
 
-    function fortuneByTotal(total){
-      const pool = ["大吉","中吉","吉","小吉","末吉"];
-      const bias = total >= 1000 ? ["大吉","中吉"] : [];
-      const pick = pool.concat(bias);
-      return pick[randInt(0, pick.length - 1)];
+    function randomFortune(){
+      const list = ["大吉","中吉","吉","小吉","末吉"];
+      return pickOne(list);
     }
 
-    // ====== ★ここがメイン：馬券“画像”をSVGで生成（新版：はみ出し防止＋馬券感アップ） ======
+    // ===============================
+    // 馬券SVG（強化版：券種別レイアウト＋はみ出し防止）
+    // ===============================
     function makeTicketSVG({ venue, raceNo, typeLabel, fieldSize, points, picks, alloc, total }){
-      const W = 980, H = 420;
+      const W = 1020, H = 430;
 
       const codeMap = {
         "単勝":"WIN", "複勝":"PLC", "枠連":"WAK", "馬連":"UMR",
         "ワイド":"WID", "馬単":"UMT", "3連複":"TRI", "3連単":"TRF"
       };
       const betCode = codeMap[typeLabel] || "BET";
-
       const pad2 = (n) => String(n).padStart(2, "0");
 
-      const kind = (typeLabel === "馬単" || typeLabel === "3連単") ? "arrow" : "dash";
-      const sepChar = kind === "arrow" ? "→" : "−";
+      const isOrdered = (typeLabel === "馬単" || typeLabel === "3連単");
+      const sepChar = isOrdered ? "→" : "−";
 
+      // 背景（縦縞 + 透かし）
       const bg = `
         <defs>
           <pattern id="vstripe" width="10" height="10" patternUnits="userSpaceOnUse">
             <rect width="10" height="10" fill="#f7fbf7"></rect>
             <rect width="5" height="10" fill="#e6f5ee"></rect>
           </pattern>
+          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity="0.15"/>
+          </filter>
         </defs>
+
         <rect x="0" y="0" width="${W}" height="${H}" fill="url(#vstripe)"/>
         <g opacity="0.07">
-          <circle cx="740" cy="150" r="120" fill="#1a4aa5"/>
-          <circle cx="860" cy="270" r="140" fill="#b00020"/>
+          <circle cx="780" cy="160" r="130" fill="#1a4aa5"/>
+          <circle cx="900" cy="285" r="150" fill="#b00020"/>
+          <path d="M640 70 C690 30, 760 30, 810 70 C860 110, 860 180, 810 220 C760 260, 690 260, 640 220 C590 180, 590 110, 640 70 Z"
+                fill="#0a7a43" opacity="0.35"/>
         </g>
       `;
 
+      // QR風（雰囲気）
       function pseudoQR(x,y){
         const cells = 12, cell = 10, size = cells*cell + 16;
         let blocks = "";
@@ -675,63 +591,81 @@
         }
         return `
           <g>
-            <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="10" fill="#fff" stroke="#111" stroke-width="2" opacity="0.95"/>
+            <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="10" fill="#fff" stroke="#111" stroke-width="2" opacity="0.98"/>
             ${blocks}
           </g>
         `;
       }
 
-      const leftX = 26;
+      // 左ブロック（場・R・QR）
+      const leftX = 28;
       const left = `
         <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111">
-          <text x="${leftX}" y="56" font-size="46" font-weight="900">${venue}</text>
-          <text x="${leftX+168}" y="56" font-size="26" font-weight="700">（日）</text>
+          <text x="${leftX}" y="56" font-size="48" font-weight="900">${venue}</text>
+          <text x="${leftX+178}" y="56" font-size="26" font-weight="700">（日）</text>
 
-          <rect x="${leftX}" y="78" width="120" height="86" rx="10" fill="#111"/>
-          <text x="${leftX+60}" y="136" font-size="54" font-weight="900" fill="#fff" text-anchor="middle">${raceNo}</text>
-          <text x="${leftX+140}" y="136" font-size="34" font-weight="900">レース</text>
+          <rect x="${leftX}" y="80" width="126" height="86" rx="10" fill="#111"/>
+          <text x="${leftX+63}" y="138" font-size="54" font-weight="900" fill="#fff" text-anchor="middle">${raceNo}</text>
+          <text x="${leftX+148}" y="138" font-size="34" font-weight="900">レース</text>
 
-          ${pseudoQR(leftX, 188)}
-          ${pseudoQR(leftX+172, 188)}
+          ${pseudoQR(leftX, 190)}
+          ${pseudoQR(leftX+178, 190)}
 
-          <text x="${leftX}" y="382" font-size="20" opacity="0.9">頭数：${fieldSize} / 点数：${points}</text>
+          <text x="${leftX}" y="382" font-size="18" opacity="0.9">頭数：${fieldSize} / 点数：${points}</text>
+          <text x="${leftX}" y="405" font-size="12" opacity="0.65">※この画像はランダム生成です</text>
         </g>
       `;
+
+      // 中央の縦枠（式別）
+      const typeVertical = typeLabel.split("").join("\n");
+      const typeFont = (typeLabel.length >= 4) ? 48 : 56; // 3連複/3連単は少し小さめ
 
       const center = `
         <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111">
-          <rect x="360" y="42" width="128" height="336" fill="#fff" stroke="#111" stroke-width="5"/>
-          <text x="424" y="78" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
+          <rect x="386" y="44" width="132" height="338" fill="#fff" stroke="#111" stroke-width="5"/>
+          <text x="452" y="80" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
 
-          <text x="424" y="230" font-size="56" font-weight="900" text-anchor="middle"
+          <text x="452" y="232" font-size="${typeFont}" font-weight="900" text-anchor="middle"
                 style="white-space:pre; line-height:1.0">
-            ${typeLabel.split("").join("\n")}
+            ${typeVertical}
           </text>
 
-          <text x="424" y="350" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
+          <text x="452" y="354" font-size="22" font-weight="900" text-anchor="middle" opacity="0.85">${betCode}</text>
         </g>
       `;
 
-      function boxes(rawNums, x, y){
-        const boxW = 64, boxH = 52, gap = 16;
+      // 右側：券種別「買い目枠」レイアウト（はみ出し防止）
+      function renderPickBoxes(rawNums, x, y){
+        const n = rawNums.length;
+
+        // ボックス基準（“枠内に必ず収まる”固定設計）
+        const boxW = 70, boxH = 54;
         const sepW = 26;
+        const gap = 12;
+
+        // 右側の買い目領域幅（この範囲に収める）
+        const areaW = 320;
+
+        // 全体幅を計算して中央寄せ（単勝/複勝が左に寄らない）
+        const totalW = (n*boxW) + ((n-1)*sepW) + ((n-1)*gap);
+        const startX = x + Math.floor((areaW - totalW)/2);
 
         let out = "";
-        for(let i=0;i<rawNums.length;i++){
-          const bx = x + i*(boxW + gap + sepW);
+        for(let i=0;i<n;i++){
+          const bx = startX + i*(boxW + gap + sepW);
           out += `
             <rect x="${bx}" y="${y}" width="${boxW}" height="${boxH}" rx="10"
                   fill="#fff" stroke="#111" stroke-width="3"/>
-            <text x="${bx + boxW/2}" y="${y + 35}" font-size="24" font-weight="900"
+            <text x="${bx + boxW/2}" y="${y + 37}" font-size="26" font-weight="900"
                   text-anchor="middle"
                   font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
               ${pad2(rawNums[i])}
             </text>
           `;
-          if(i < rawNums.length - 1){
-            const sx = bx + boxW + gap/2 + sepW/2;
+          if(i < n - 1){
+            const sx = bx + boxW + Math.floor(gap/2) + Math.floor(sepW/2);
             out += `
-              <text x="${sx}" y="${y + 36}" font-size="28" font-weight="900"
+              <text x="${sx}" y="${y + 38}" font-size="30" font-weight="900"
                     text-anchor="middle"
                     font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif">
                 ${sepChar}
@@ -742,25 +676,26 @@
         return out;
       }
 
+      // picks整形（安全）
       const lines = picks.map((p,i)=>({
-        raw: (p.raw && p.raw.length ? p.raw : (p.text.match(/\d+/g)||[]).map(Number).slice(0,3)),
-        yen: alloc[i]
+        raw: (p.raw && p.raw.length ? p.raw : (String(p.text).match(/\d+/g)||[]).map(Number).slice(0,3)),
+        yen: alloc[i] || 0
       }));
 
+      // レーン（点数が多い時も崩れない：最大5点）
+      const buyX = 560;
+      const moneyX = 898;
       const right = `
         <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111">
           ${lines.map((ln, idx)=>{
-            const y = 96 + idx*86;
-            const buyX = 520;
-            const moneyX = 830;
-
+            const y = 96 + idx*74;
             return `
               <g>
-                ${boxes(ln.raw, buyX, y)}
+                ${renderPickBoxes(ln.raw, buyX, y)}
 
-                <rect x="${moneyX}" y="${y}" width="132" height="52" rx="10"
+                <rect x="${moneyX}" y="${y}" width="112" height="54" rx="10"
                       fill="#fff" stroke="#111" stroke-width="3"/>
-                <text x="${moneyX+66}" y="${y+35}" font-size="20" font-weight="900" text-anchor="middle"
+                <text x="${moneyX+56}" y="${y+36}" font-size="18" font-weight="900" text-anchor="middle"
                       font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
                   × ${ln.yen.toLocaleString()}円
                 </text>
@@ -768,22 +703,31 @@
             `;
           }).join("")}
 
-          <text x="520" y="388" font-size="24" font-weight="900">合計</text>
-          <text x="600" y="388" font-size="46" font-weight="900"
+          <text x="560" y="392" font-size="22" font-weight="900" opacity="0.95">合計</text>
+          <text x="640" y="392" font-size="46" font-weight="900"
                 font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace">
             ${total.toLocaleString()}円
           </text>
         </g>
       `;
 
+      // 外枠（太め＋角丸）
       const frame = `
-        <rect x="6" y="6" width="${W-12}" height="${H-12}" rx="18"
+        <rect x="8" y="8" width="${W-16}" height="${H-16}" rx="18"
               fill="none" stroke="#111" stroke-width="6"/>
+      `;
+
+      // ちょい「印刷物」っぽい上部ラベル
+      const topLabel = `
+        <g font-family="system-ui, -apple-system, 'Noto Sans JP', sans-serif" fill="#111" opacity="0.85">
+          <text x="28" y="26" font-size="14" font-weight="700">勝馬投票券（イメージ）</text>
+        </g>
       `;
 
       return `
         <svg class="ticketSvg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="馬券">
           ${bg}
+          ${topLabel}
           ${left}
           ${center}
           ${right}
@@ -792,71 +736,116 @@
       `;
     }
 
-    function drawTicket(){
-      clearTicketError();
-
-      const type = betTypeEl.value;
-      const fieldSize = Number(fieldSizeEl.value);
-      const points = Number(pointsEl.value || "1");
-      const budget = Number(budgetEl.value);
-
-      if(!Number.isFinite(fieldSize) || fieldSize < 2 || fieldSize > 18){
-        showTicketError("レース頭数は 2〜18 の範囲で入力してください。");
-        return;
-      }
-      if(!Number.isFinite(budget) || budget < 100){
-        showTicketError("合計金額は 100円以上で入力してください。");
-        return;
-      }
-
-      const fixed1 = (type === "win" || type === "place");
-      const finalPoints = fixed1 ? 1 : points;
-
-      const set = new Set();
-      const picks = [];
-      const maxTry = 80;
-
-      for(let t=0; t<maxTry && picks.length < finalPoints; t++){
-        const p = buildPick(type, fieldSize);
-        const key = normalizePick(type, p.text);
-        if(set.has(key)) continue;
-        set.add(key);
-        picks.push(p);
-      }
-      if(picks.length < finalPoints){
-        showTicketError("買い目の生成に失敗しました。時間をおいて再度お試しください。");
-        return;
-      }
-
-      const alloc = splitBudget(budget, finalPoints);
-
-      const venue = ["阪神","京都","東京","中山","札幌","函館","新潟","中京","小倉"][randInt(0,8)];
-      const raceNo = randInt(1, 12);
-      const typeLabel = typeLabels[type] || "馬券";
-
-      ticketSvgMount.innerHTML = makeTicketSVG({
-        venue, raceNo, typeLabel,
-        fieldSize, points: finalPoints,
-        picks, alloc, total: budget
-      });
-
-      ticketWrapEl.style.display = "block";
-      ticketAmountEl.textContent = `合計：${budget.toLocaleString()}円`;
-      ticketFortuneEl.textContent = fortuneByTotal(budget);
-
-      const linesText = picks.map((p,i)=>`${p.text.replace("馬番 ","").replace("枠 ","枠 ")}×${alloc[i]}円`).join(" / ");
-      lastTicket = { typeLabel, linesText, total: budget };
-      setShareEnabled();
-
-      ticketShareLinkEl.style.display = "inline-block";
-      ticketShareLinkEl.onclick = (e)=>{ e.preventDefault(); share(); };
+    function renderTicket(ticket){
+      ticketSvgHolder.innerHTML = makeTicketSVG(ticket);
+      ticketSumText.textContent = `合計：${ticket.total.toLocaleString()}円`;
+      fortuneStamp.textContent = ticket.fortune;
+      ticketArea.style.display = "block";
     }
 
-    betTypeEl.addEventListener("change", updatePointsOptions);
-    updatePointsOptions();
-    ticketBtn.addEventListener("click", drawTicket);
+    // SVG→PNG（対応環境なら画像シェア）
+    async function svgToPngBlob(svgEl, scale=2){
+      const svgText = new XMLSerializer().serializeToString(svgEl);
+      const svgBlob = new Blob([svgText], {type:"image/svg+xml;charset=utf-8"});
+      const url = URL.createObjectURL(svgBlob);
 
-    setShareEnabled();
+      const img = new Image();
+      await new Promise((resolve, reject)=>{
+        img.onload = ()=>resolve();
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(img.width * scale);
+      canvas.height = Math.floor(img.height * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      URL.revokeObjectURL(url);
+
+      return new Promise((resolve)=>canvas.toBlob(resolve, "image/png", 0.95));
+    }
+
+    function buildTicketText(ticket){
+      const pickText = ticket.picks.map((p,i)=>`${p.text}（${ticket.alloc[i].toLocaleString()}円）`).join(" / ");
+      const url = location.href;
+      const jockeyText = latestJockey ? `今日の推しジョッキー：${latestJockey.name}` : "";
+      return [
+        jockeyText,
+        `馬券おみくじ：${ticket.typeLabel}`,
+        `買い目：${pickText}`,
+        `合計：${ticket.total.toLocaleString()}円`,
+        url,
+        "#馬券おみくじ #今日の推しジョッキー"
+      ].filter(Boolean).join("\n");
+    }
+
+    bakenBtn.addEventListener("click", async ()=>{
+      ticketErr.style.display = "none";
+      ticketErr.textContent = "";
+
+      const typeLabel = betTypeEl.value;
+      const fieldSize = clampInt(fieldSizeEl.value, 2, 18);
+      fieldSizeEl.value = fieldSize;
+
+      const points = clampInt(pointsEl.value, 1, 10);
+      const budget = clampInt(budgetEl.value, 100, 99999999);
+      const { total, alloc } = allocateBudget(budget, points);
+
+      const venue = pickOne(VENUES);
+      const raceNo = clampInt(Math.floor(Math.random()*12)+1, 1, 12);
+
+      // 点数分の買い目生成（重複をなるべく避ける）
+      const picks = [];
+      const used = new Set();
+      let guard = 0;
+      while(picks.length < points && guard < 250){
+        const p = makePick(typeLabel, fieldSize);
+        const key = p.text;
+        if(!used.has(key)){
+          used.add(key);
+          picks.push(p);
+        }
+        guard++;
+      }
+      while(picks.length < points){
+        picks.push(makePick(typeLabel, fieldSize));
+      }
+
+      const fortune = randomFortune();
+
+      latestTicket = { venue, raceNo, typeLabel, fieldSize, points, picks, alloc, total, fortune };
+      renderTicket(latestTicket);
+    });
+
+    // 「この馬券をシェア」
+    shareTicketLink.addEventListener("click", async (e)=>{
+      e.preventDefault();
+      if(!latestTicket){
+        alert("先に馬券おみくじを引いてください。");
+        return;
+      }
+
+      const text = buildTicketText(latestTicket);
+
+      // 画像シェア（対応環境のみ）
+      const svgEl = ticketSvgHolder.querySelector("svg");
+      if(svgEl && navigator.canShare){
+        try{
+          const blob = await svgToPngBlob(svgEl, 2);
+          if(blob){
+            const file = new File([blob], "baken.png", { type: "image/png" });
+            if(navigator.canShare({ files: [file] }) && navigator.share){
+              await navigator.share({ text, files:[file] });
+              return;
+            }
+          }
+        }catch(e){}
+      }
+
+      await shareCommon(text);
+    });
   </script>
 </body>
 </html>
