@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>今日の推しジョッキー｜神社のおみくじ風</title>
 
-  <!-- ✅ AdSense（審査中でもOK：Auto adsを使う場合はこの1行で足ります） -->
+  <!-- AdSense（審査中でも入れてOK。表示されないことがあります） -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4459781035513186"
     crossorigin="anonymous"></script>
 
@@ -277,39 +277,32 @@
       margin-bottom: 6px;
     }
 
-    /* ✅ AdSense広告枠（レスポンシブ・見た目を馴染ませる） */
-    .adSlot{
-      margin-top: 12px;
-      border-radius: 16px;
-      overflow:hidden;
-      border: 1px dashed rgba(205,185,156,.85);
-      background: rgba(255,255,255,.45);
-      padding: 10px;
-    }
-    .adLabel{
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 8px;
-    }
-
-    .footer{
-      margin-top: 14px;
-      padding: 12px 10px;
-      border-radius: var(--radius2);
-      border: 1px solid rgba(205,185,156,.55);
-      background: rgba(255,255,255,.40);
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-    .footer a{ color: var(--link); }
-    .footer .links{ display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
-
     .error{
       color:#b00020;
       font-size: 13px;
       margin-top: 8px;
       white-space: pre-wrap;
+    }
+
+    /* AdSense枠（見た目だけの枠。審査中は広告が出ないこともある） */
+    .adSlot{
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px dashed rgba(205,185,156,.95);
+      background: rgba(255,255,255,.35);
+    }
+    .adSlotHead{
+      font-family:"Kaisei Tokumin", serif;
+      font-weight:900;
+      letter-spacing:.06em;
+      margin: 0 0 8px;
+    }
+    .adNote{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -317,7 +310,6 @@
 <body>
   <div class="wrap">
 
-    <!-- ✅ 上：推しジョッキー -->
     <section class="card" aria-label="今日の推しジョッキー">
       <div class="stamp">推</div>
       <h1 class="title">今日の推しジョッキー</h1>
@@ -334,26 +326,27 @@
         <div id="jockeyErr" class="error" style="display:none;"></div>
       </div>
 
-      <!-- ✅ AdSense枠（推しジョッキー下） -->
-      <div class="adSlot" aria-label="広告（推しジョッキー下）">
-        <div class="adLabel">広告</div>
-        <!-- Auto ads利用ならinsタグ無しでもOK。手動枠にするなら下のinsを有効化して利用 -->
+      <!-- 広告枠（審査中でも設置OK。承認後に表示される場合あり） -->
+      <div class="adSlot" aria-label="広告枠">
+        <div class="adSlotHead">広告</div>
+
+        <!-- Auto ads を使わない場合は、ここに広告ユニットを貼る（後で差し替え） -->
         <!--
         <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-4459781035513186"
-          data-ad-slot="1234567890"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
+             style="display:block"
+             data-ad-client="ca-pub-4459781035513186"
+             data-ad-slot="XXXXXXXXXX"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         -->
-        <div class="smallNote">※審査中は広告が表示されない場合があります。</div>
+
+        <div class="adNote">※審査中は広告が表示されない場合があります。</div>
       </div>
     </section>
 
     <div class="divider"></div>
 
-    <!-- ✅ 中：馬券おみくじ -->
     <section class="card" aria-label="馬券おみくじ">
       <div class="stamp">券</div>
 
@@ -414,55 +407,9 @@
       </div>
 
       <div class="smallNote">※4点でも票面の“下段合計”と被らないよう、行間を自動調整しています。</div>
-
-      <!-- ✅ AdSense枠（馬券おみくじ下） -->
-      <div class="adSlot" aria-label="広告（馬券おみくじ下）">
-        <div class="adLabel">広告</div>
-        <!--
-        <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-4459781035513186"
-          data-ad-slot="1234567890"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        -->
-        <div class="smallNote">※審査通過後に表示されます（Auto adsなら自動配置も可）。</div>
-      </div>
     </section>
 
-    <div class="divider"></div>
-
-    <!-- ✅ 追加：このサイトについて（“有用性”対策の核） -->
-    <section class="card" aria-label="このサイトについて">
-      <div class="sectionHead">このサイトについて</div>
-      <p class="subtitle">
-        「今日の推しジョッキー」は、競馬ファン向けに“神社のおみくじ感覚”で楽しめる無料コンテンツです。
-        毎日の運試しとして推しジョッキーを引いたり、ランダムで馬券の組み合わせ（イメージ）を楽しんだりできます。
-      </p>
-      <p class="subtitle" style="margin-top:-6px;">
-        本サイトはエンターテインメント目的であり、特定の投票行為を推奨するものではありません。
-        競馬をより気軽に楽しむための「遊び」としてご利用ください。
-      </p>
-
-      <div class="sectionHead" style="font-size:22px;margin-top:10px;">遊び方</div>
-      <ul class="subtitle" style="margin-left: 18px;">
-        <li>「勝負！」で今日の推しジョッキーを引く</li>
-        <li>券種・頭数・点数・合計金額を選んで「馬券おみくじ」を引く</li>
-        <li>結果をシェアして友達と運試し</li>
-      </ul>
-
-      <div class="sectionHead" style="font-size:22px;margin-top:10px;">免責事項</div>
-      <p class="smallNote">
-        本サイトの内容は情報提供・娯楽目的です。実際の投票・購入はご自身の判断と責任で行ってください。
-        当サイトの利用により生じた損害について、当サイトは一切の責任を負いません。
-      </p>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ✅ おすすめ・広告 -->
-    <section class="card" aria-label="おすすめ・広告">
+    <section class="card" aria-label="おすすめ・広告" style="margin-top:14px;">
       <div class="sectionHead">おすすめサイト</div>
 
       <div class="adsCard">
@@ -479,26 +426,14 @@
         <div class="adsItem">
           <div class="name">馬券師の記録（ケイバオゼキ）</div>
           <div class="desc">最強馬券師「ケイバオゼキ」魂のロジカル馬券勝負</div>
-          <a href="https://dashboard.vercel.app" target="_blank" rel="noopener noreferrer">
-            dashboard.vercel.app
+          <a href="https://keiba-dashboard.vercel.app/" target="_blank" rel="noopener noreferrer">
+            https://keiba-dashboard.vercel.app/
           </a>
         </div>
       </div>
 
       <div class="smallNote">※広告枠は今後「回転（ランダム表示）」や「クリック計測（解析）」にも拡張できます。</div>
     </section>
-
-    <!-- ✅ フッター（AdSense必須級：ポリシー導線） -->
-    <footer class="footer" aria-label="フッター">
-      <div><strong>運営</strong>：今日の推しジョッキー（oshi-jockey）</div>
-      <div class="links">
-        <a href="/privacy.html">プライバシーポリシー</a>
-        <a href="/privacy.html#ads">広告について</a>
-      </div>
-      <div style="margin-top:6px;">
-        ※当サイトはGoogle等の第三者配信事業者によるCookieを使用した広告配信を行う場合があります。
-      </div>
-    </footer>
 
   </div>
 
@@ -546,7 +481,8 @@
     lastJockey = null;
 
     try{
-      const res = await fetch("/api/get-jockey", { cache: "no-store" });
+      // ✅ 修正：Vercelの api/oshi-jockey.js に合わせる
+      const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
       const text = await res.text();
 
       let data;
@@ -559,9 +495,9 @@
         throw new Error(data?.message || "取得に失敗しました。");
       }
 
-      const picked = data.picked || {};
+      const picked = data.picked || data || {};
       const name = picked.name || "(ジョッキー)";
-      const profileUrl = picked.profileUrl || "";
+      const profileUrl = picked.profileUrl || picked.url || "";
 
       jockeyNameEl.textContent = name;
 
@@ -676,6 +612,8 @@
 
   // -------------------------
   // 票面SVG（文字被り修正版）
+  // - 行間を points に応じて自動調整
+  // - 4点でも最下段「合計」と絶対に重ならない
   // -------------------------
   function makeTicketSVG(model){
     const W = 980;
@@ -693,10 +631,12 @@
     const points = model.points;
     const total = model.total;
 
+    // 券種の縦書き（1文字ずつ）
     const betChars = Array.from(String(betLabel));
     const betCharY0 = 132;
     const betCharGap = 34;
 
+    // 右側の買い目行の縦位置を点数で可変
     const rowsTop = 74;
     const rowsBottom = 210;
     const maxGap = 54;
@@ -712,6 +652,7 @@
 
     const amountTextX = 922;
 
+    // 合計は下に固定
     const totalLabelY = 286;
     const totalAmountY = 288;
 
