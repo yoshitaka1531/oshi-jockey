@@ -304,6 +304,109 @@
       line-height: 1.7;
       margin-top: 8px;
     }
+
+    /* Policy */
+    details.policy{
+      margin-top: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(205,185,156,.65);
+      background: rgba(255,255,255,.45);
+      overflow:hidden;
+    }
+    details.policy summary{
+      cursor:pointer;
+      padding: 12px 12px;
+      font-family:"Kaisei Tokumin", serif;
+      font-weight:900;
+      letter-spacing:.06em;
+      list-style:none;
+    }
+    details.policy summary::-webkit-details-marker{ display:none; }
+    .policyBody{
+      padding: 0 12px 12px;
+      color: var(--ink);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .policyBody h3{
+      font-family:"Kaisei Tokumin", serif;
+      font-size: 16px;
+      margin: 10px 0 6px;
+    }
+    .policyBody ul{ margin: 6px 0 6px 18px; }
+    .policyLinks{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .miniBtn{
+      display:inline-block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(205,185,156,.9);
+      background: rgba(255,255,255,.55);
+      color: var(--ink);
+      text-decoration:none;
+      font-family:"Kaisei Tokumin", serif;
+      font-weight:800;
+      letter-spacing:.04em;
+    }
+
+    /* Cookie Consent */
+    .consent{
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      max-width: 860px;
+      margin: 0 auto;
+      border-radius: 18px;
+      border: 1px solid rgba(205,185,156,.9);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 10px 26px rgba(0,0,0,.14);
+      padding: 12px;
+      z-index: 9999;
+      display:none;
+    }
+    .consentTitle{
+      font-family:"Kaisei Tokumin", serif;
+      font-weight:900;
+      letter-spacing:.06em;
+      margin: 0 0 6px;
+    }
+    .consentText{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 10px;
+    }
+    .consentBtns{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .consentBtns button{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(205,185,156,.9);
+      background: linear-gradient(180deg, #fff8ec, #f2e6d2);
+      font-family:"Kaisei Tokumin", serif;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .consentBtns button.secondary{
+      background: rgba(255,255,255,.65);
+      font-weight:800;
+    }
+
+    footer{
+      margin-top: 18px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
   </style>
 </head>
 
@@ -330,7 +433,11 @@
       <div class="adSlot" aria-label="広告枠">
         <div class="adSlotHead">広告</div>
 
-        <!-- Auto ads を使わない場合は、ここに広告ユニットを貼る（後で差し替え） -->
+        <!--
+          重要：
+          ここは「広告ユニットを作った後」に data-ad-slot を入れる場所。
+          審査前は入れなくてもOK。Auto ads をONにする運用でもOK。
+        -->
         <!--
         <ins class="adsbygoogle"
              style="display:block"
@@ -435,6 +542,114 @@
       <div class="smallNote">※広告枠は今後「回転（ランダム表示）」や「クリック計測（解析）」にも拡張できます。</div>
     </section>
 
+    <!-- ✅ ここから：AdSense 対策（おすすめサイトの次に追加） -->
+    <section class="card" aria-label="プライバシー・ポリシー" style="margin-top:14px;">
+      <div class="sectionHead">プライバシー・ポリシー等</div>
+      <p class="subtitle">当サイトは広告配信（Google など）・アクセス解析のため、Cookie 等を利用する場合があります。</p>
+
+      <div class="policyLinks">
+        <a class="miniBtn" href="#privacy">プライバシーポリシー</a>
+        <a class="miniBtn" href="#disclaimer">免責事項</a>
+        <a class="miniBtn" href="#contact">お問い合わせ</a>
+        <a class="miniBtn" href="#cookies">Cookieについて</a>
+      </div>
+
+      <details class="policy" id="privacy" open>
+        <summary>プライバシーポリシー</summary>
+        <div class="policyBody">
+          <h3>広告配信について</h3>
+          <p>
+            当サイトでは、第三者配信の広告サービス（例：Google AdSense）を利用する予定があります。
+            広告配信事業者は、ユーザーの興味に応じた広告を表示するために Cookie を使用することがあります。
+          </p>
+          <ul>
+            <li>Cookie により取得される情報には、氏名・住所・メールアドレス・電話番号などの個人を特定する情報は含まれません。</li>
+            <li>Cookie の使用を望まない場合、ブラウザ設定から無効にできます。</li>
+          </ul>
+
+          <h3>アクセス解析について</h3>
+          <p>
+            当サイトでは、サービス改善のためにアクセス解析を導入する場合があります。
+            解析ツールは Cookie を使用し、トラフィックデータを収集することがありますが、個人を特定するものではありません。
+          </p>
+
+          <h3>個人情報の取り扱い</h3>
+          <p>
+            お問い合わせ等で取得した個人情報は、質問への回答や必要な連絡のみに利用し、
+            本人の同意がある場合または法令に基づく場合を除き第三者に開示しません。
+          </p>
+        </div>
+      </details>
+
+      <details class="policy" id="cookies">
+        <summary>Cookie（クッキー）について</summary>
+        <div class="policyBody">
+          <p>
+            Cookie は、ウェブサイトがユーザーの端末に保存する小さなデータです。
+            当サイトは、広告配信・アクセス解析・利便性向上のために Cookie を利用する場合があります。
+          </p>
+          <ul>
+            <li>ユーザーはブラウザ設定で Cookie の拒否・削除が可能です。</li>
+            <li>Cookie を無効にすると、サイトの一部機能が正しく動作しない場合があります。</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="policy" id="disclaimer">
+        <summary>免責事項</summary>
+        <div class="policyBody">
+          <p>
+            当サイトのコンテンツ（推しジョッキー/馬券おみくじ等）は娯楽目的で提供しています。
+            掲載内容の正確性や安全性を保証するものではありません。
+          </p>
+          <ul>
+            <li>当サイト利用により生じた損害等について、運営者は一切の責任を負いません。</li>
+            <li>外部リンク先で提供される情報・サービスについて、当サイトは責任を負いません。</li>
+            <li>競馬等の投票行為は、各自の判断と責任のもとで行ってください。</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="policy" id="contact">
+        <summary>お問い合わせ</summary>
+        <div class="policyBody">
+          <p>
+            お問い合わせは以下からお願いいたします（暫定）。
+          </p>
+          <ul>
+            <li>メール：<span id="contactEmail">（未設定）</span></li>
+            <li>または、X / Instagram などのSNS（運用開始後にここを更新）</li>
+          </ul>
+          <p class="smallNote">
+            ※メールアドレスを公開したくない場合は、Googleフォーム等のリンクに差し替えるのがおすすめです。
+          </p>
+        </div>
+      </details>
+
+      <div class="smallNote">
+        ※EEA/英国/スイス向けに同意取得（CMP）が必要な場合があります。AdSense 管理画面の案内に沿って CMP を設定してください。
+      </div>
+    </section>
+
+    <footer>
+      <div>© <span id="year"></span> 今日の推しジョッキー</div>
+      <div>本サイトは娯楽コンテンツです。投票は自己責任で。</div>
+    </footer>
+
+  </div>
+
+  <!-- Cookie同意（簡易版：表示/非表示のみ。CMPの代替ではありません） -->
+  <div class="consent" id="consent">
+    <div class="consentTitle">Cookie の利用について</div>
+    <p class="consentText">
+      当サイトは、広告配信・アクセス解析のために Cookie を利用する場合があります。
+      「同意する」を押すと Cookie の利用に同意したものとみなします。
+      （※EEA/英国/スイス向けにはCMP対応が必要になる場合があります）
+    </p>
+    <div class="consentBtns">
+      <button id="consentAccept">同意する</button>
+      <button id="consentReject" class="secondary">同意しない</button>
+    </div>
   </div>
 
 <script>
@@ -481,7 +696,6 @@
     lastJockey = null;
 
     try{
-      // ✅ 修正：Vercelの api/oshi-jockey.js に合わせる
       const res = await fetch("/api/oshi-jockey", { cache: "no-store" });
       const text = await res.text();
 
@@ -610,11 +824,6 @@
       .replaceAll("'","&#39;");
   }
 
-  // -------------------------
-  // 票面SVG（文字被り修正版）
-  // - 行間を points に応じて自動調整
-  // - 4点でも最下段「合計」と絶対に重ならない
-  // -------------------------
   function makeTicketSVG(model){
     const W = 980;
     const H = 300;
@@ -631,12 +840,10 @@
     const points = model.points;
     const total = model.total;
 
-    // 券種の縦書き（1文字ずつ）
     const betChars = Array.from(String(betLabel));
     const betCharY0 = 132;
     const betCharGap = 34;
 
-    // 右側の買い目行の縦位置を点数で可変
     const rowsTop = 74;
     const rowsBottom = 210;
     const maxGap = 54;
@@ -652,7 +859,6 @@
 
     const amountTextX = 922;
 
-    // 合計は下に固定
     const totalLabelY = 286;
     const totalAmountY = 288;
 
@@ -827,6 +1033,28 @@
     if (!lastBaken) return;
     const text = formatBakenShareText(lastBaken);
     await shareText(text);
+  });
+
+  // -------------------------
+  // Footer / Consent
+  // -------------------------
+  document.getElementById("year").textContent = String(new Date().getFullYear());
+
+  const consentEl = document.getElementById("consent");
+  const key = "oj_consent_v1";
+  const saved = localStorage.getItem(key);
+
+  if (!saved){
+    consentEl.style.display = "block";
+  }
+
+  document.getElementById("consentAccept").addEventListener("click", () => {
+    localStorage.setItem(key, "accept");
+    consentEl.style.display = "none";
+  });
+  document.getElementById("consentReject").addEventListener("click", () => {
+    localStorage.setItem(key, "reject");
+    consentEl.style.display = "none";
   });
 </script>
 </body>
